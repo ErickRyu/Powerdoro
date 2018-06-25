@@ -1,0 +1,22 @@
+{
+  "name": "powerdoro",
+  "version": "0.0.1",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": "",
+  "keywords": [
+    "Electron",
+    "quick",
+    "start",
+    "tutorial",
+    "demo"
+  ],
+  "author": "",
+  "license": "",
+  "devDependencies": {
+    "electron": "^2.0.0"
+  }
+}
