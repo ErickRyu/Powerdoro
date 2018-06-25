@@ -1,18 +1,18 @@
 const electron = require('electron');
-const {app, BrowserWindow} = require('electron');
+const {app, BrowserWindow, Menu, Tray} = require('electron');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow
+let mainWindow, tray = null
 
 function createWindow () {
     // Create the browser window.
-    var electronScreen = electron.screen;
-    var displays = electronScreen.getAllDisplays();
-    var externalDisplay = null;
+    var electronScreen = electron.screen
+    var displays = electronScreen.getAllDisplays()
+    var externalDisplay = null
     for (var i in displays) {
         if (displays[i].bounds.x != 0 || displays[i].bounds.y != 0) {
-            externalDisplay = displays[i];
+            externalDisplay = displays[i]
             break;
         }
     }
@@ -43,7 +43,15 @@ function createWindow () {
     })
 }
 
-app.on('ready', createWindow)
+app.on('ready', ()=>{
+    tray = new Tray('./appicon.png')
+    tray.setTitle('Timer')
+    const contextMenu = Menu.buildFromTemplate([
+        {label: 'Item1', type: 'radio'}
+    ])
+    tray.setToolTip('This is my app')
+    tray.setContextMenu(contextMenu)
+})
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
