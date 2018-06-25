@@ -1,8 +1,11 @@
 const electron = require('electron');
 const {app, BrowserWindow, Menu, Tray} = require('electron');
+const moment = require('moment')
+const momentDurationFormatSetup = require('moment-duration-format')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
+
 let mainWindow, tray = null
 
 function createWindow () {
@@ -45,16 +48,18 @@ function createWindow () {
 
 
 function startTimer(){
-    let min = 1;
-    let sec = min * 60;
-    sec = 5;
-    let milSec = sec * 1000;
+    let min = 3
+    let sec = min * 60
+    sec = 5
+    let ms = sec * 1000
+    tray.setTitle( moment.duration(ms, 'milliseconds').format('mm:ss', {trim: false}))
     const intervalObj = setInterval(()=>{
-        milSec -= 1000
-        tray.setTitle(''+milSec)
-        if(milSec <= 0){
+        ms -= 1000
+        tray.setTitle( moment.duration(ms, 'milliseconds').format('mm:ss', {trim: false}))
+
+        if(ms <= 0){
             clearTimeout(intervalObj)
-            tray.setTitle('Tmer')
+            tray.setTitle('Timer')
         }
 
     }, 1000)
