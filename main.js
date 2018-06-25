@@ -43,12 +43,30 @@ function createWindow () {
     })
 }
 
+
+function startTimer(){
+    let min = 1;
+    let sec = min * 60;
+    sec = 5;
+    let milSec = sec * 1000;
+    const intervalObj = setInterval(()=>{
+        milSec -= 1000
+        tray.setTitle(''+milSec)
+        if(milSec <= 0){
+            clearTimeout(intervalObj)
+            tray.setTitle('Tmer')
+        }
+
+    }, 1000)
+}
+
 app.on('ready', ()=>{
     tray = new Tray('./appicon.png')
     tray.setTitle('Timer')
-    const contextMenu = Menu.buildFromTemplate([
-        {label: 'Item1', type: 'radio'}
-    ])
+    const template = [
+        {label: 'start 5 sec', click(){startTimer()}}
+    ]
+    const contextMenu = Menu.buildFromTemplate(template)
     tray.setToolTip('This is my app')
     tray.setContextMenu(contextMenu)
 })
