@@ -8,3 +8,6 @@ $ cd Powerdoro
 $ npm install
 $ npm start
 ```
+
+# Roadmap
+[Trello board](https://trello.com/b/zDA1vG6u)
