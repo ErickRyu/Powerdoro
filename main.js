@@ -49,13 +49,17 @@ function createWindow () {
 }
 
 
+function getPrettyTime(ms){
+    return moment.duration(ms, 'milliseconds').format('mm:ss', {trim: false})
+}
+
 function startTimer(min, sec){
     ms = ((min * 60) + sec) * 1000
-    tray.setTitle( moment.duration(ms, 'milliseconds').format('mm:ss', {trim: false}))
+    tray.setTitle( getPrettyTime(ms))
     setStartTimerTray()
     intervalObj = setInterval(()=>{
         ms -= 1000
-        tray.setTitle( moment.duration(ms, 'milliseconds').format('mm:ss', {trim: false}))
+        tray.setTitle( getPrettyTime(ms) )
 
         if(ms <= 0){
             clearTimeout(intervalObj)
