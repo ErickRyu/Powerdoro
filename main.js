@@ -7,6 +7,7 @@ const momentDurationFormatSetup = require('moment-duration-format')
 // be closed automatically when the JavaScript object is garbage collected.
 
 let mainWindow, tray = null
+let min, sec, ms
 
 function createWindow () {
     // Create the browser window.
@@ -47,11 +48,8 @@ function createWindow () {
 }
 
 
-function startTimer(){
-    let min = 3
-    let sec = min * 60
-    sec = 5
-    let ms = sec * 1000
+function startTimer(min, sec){
+    ms = ((min * 60) + sec) * 1000
     tray.setTitle( moment.duration(ms, 'milliseconds').format('mm:ss', {trim: false}))
     const intervalObj = setInterval(()=>{
         ms -= 1000
@@ -60,6 +58,7 @@ function startTimer(){
         if(ms <= 0){
             clearTimeout(intervalObj)
             tray.setTitle('Timer')
+            createWindow()
         }
 
     }, 1000)
@@ -69,7 +68,10 @@ app.on('ready', ()=>{
     tray = new Tray('./appicon.png')
     tray.setTitle('Timer')
     const template = [
-        {label: 'start 5 sec', click(){startTimer()}}
+        {label: 'start 5 sec', click(){startTimer(0, 5)}},
+        {label: 'start 10 min', click(){
+            startTimer(10, 0)
+        }}
     ]
     const contextMenu = Menu.buildFromTemplate(template)
     tray.setToolTip('This is my app')
