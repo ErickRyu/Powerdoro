@@ -8,6 +8,7 @@ const momentDurationFormatSetup = require('moment-duration-format')
 
 let mainWindow, tray = null
 let min, sec, ms
+let intervalObj
 
 function createWindow () {
     // Create the browser window.
@@ -51,31 +52,57 @@ function createWindow () {
 function startTimer(min, sec){
     ms = ((min * 60) + sec) * 1000
     tray.setTitle( moment.duration(ms, 'milliseconds').format('mm:ss', {trim: false}))
-    const intervalObj = setInterval(()=>{
+    setStartTimerTray()
+    intervalObj = setInterval(()=>{
         ms -= 1000
         tray.setTitle( moment.duration(ms, 'milliseconds').format('mm:ss', {trim: false}))
 
         if(ms <= 0){
             clearTimeout(intervalObj)
-            tray.setTitle('Timer')
+            setStopTimerTray()
             createWindow()
         }
 
     }, 1000)
 }
 
-app.on('ready', ()=>{
+function initTray(){
     tray = new Tray('./appicon.png')
     tray.setTitle('Timer')
-    const template = [
-        {label: 'start 5 sec', click(){startTimer(0, 5)}},
-        {label: 'start 10 min', click(){
-            startTimer(10, 0)
-        }}
-    ]
-    const contextMenu = Menu.buildFromTemplate(template)
     tray.setToolTip('This is my app')
+    setTrayTemplate(startTimerTemplate)
+
+}
+
+const stopTimerTemplate = [
+    {label: 'stoptimer', click(){
+        clearTimeout(intervalObj)
+        setStopTimerTray()
+    }}
+]
+const startTimerTemplate = [
+    {label: 'start 5 sec', click(){startTimer(0, 5)}},
+    {label: 'start 10 min', click(){
+        startTimer(10, 0)
+    }},
+]
+
+function setStartTimerTray(){
+    setTrayTemplate(stopTimerTemplate)
+}
+
+function setStopTimerTray(){ 
+    tray.setTitle('Timer')
+    setTrayTemplate(startTimerTemplate)
+}
+
+function setTrayTemplate(template){
+    const contextMenu = Menu.buildFromTemplate(template)
     tray.setContextMenu(contextMenu)
+}
+
+app.on('ready', ()=>{
+    initTray()
 })
 
 // Quit when all windows are closed.
