@@ -8,10 +8,14 @@
             background-color: black;
 }
 </style>
+<script src="./renderer.js"></script>
     </head>
     <body>
-        <div class='container'> 
-            <input type="text">
+        <div class="container" name="timeform"> 
+            <form action='post' onsubmit='sendTime()'>
+                <input type="text" name="a" id="time">
+               <input type="submit" value="send">
+            </form>
         </div>
     </body>
 </html>

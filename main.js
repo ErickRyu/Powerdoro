@@ -88,9 +88,20 @@ const startTimerTemplate = [
     {label: 'start 5 sec', click(){startTimer(0, 5)}},
     {label: 'start 10 min', click(){
         startTimer(10, 0)
+        console.log('start sending')
     }},
 ]
 
+ipcMain.on('asynchronous-message', (event, arg) => {
+    console.log(arg) // prints "ping"
+    //event.sender.send('asynchronous-reply', 'pong')
+    startTimer(0, arg)
+})
+
+ipcMain.on('synchronous-message', (event, arg) => {
+    console.log(arg) // prints "ping"
+    event.returnValue = 'pong'
+})
 function setStartTimerTray(){
     setTrayTemplate(stopTimerTemplate)
 }
@@ -129,29 +140,29 @@ app.on('activate', function () {
 })
 
 const createTray = () => {
-  tray = new Tray('appicon.png')
+    tray = new Tray('appicon.png')
     console.log('done')
-  tray.on('click', function (event) {
-    toggleWindow()
-  })
+    tray.on('click', function (event) {
+        toggleWindow()
+    })
 }
 
-  const getWindowPosition = () => {
-  const windowBounds = window.getBounds()
-  const trayBounds = tray.getBounds()
+const getWindowPosition = () => {
+    const windowBounds = window.getBounds()
+    const trayBounds = tray.getBounds()
 
-  // Center window horizontally below the tray icon
-  const x = Math.round(trayBounds.x + (trayBounds.width / 2) - (windowBounds.width / 2))
+    // Center window horizontally below the tray icon
+    const x = Math.round(trayBounds.x + (trayBounds.width / 2) - (windowBounds.width / 2))
 
-  // Position window 4 pixels vertically below the tray icon
-  const y = Math.round(trayBounds.y + trayBounds.height + 3)
+    // Position window 4 pixels vertically below the tray icon
+    const y = Math.round(trayBounds.y + trayBounds.height + 3)
 
-  return {x: x, y: y}
+    return {x: x, y: y}
 }
 
 // Creates window & specifies its values
 const createWindow2 = () => {
-  window = new BrowserWindow({
+    window = new BrowserWindow({
         width: 250,
         height: 310,
         show: false,
@@ -164,29 +175,29 @@ const createWindow2 = () => {
     // This is where the index.html file is loaded into the window
     window.loadURL('file://' + __dirname + '/menu.html');
 
-  // Hide the window when it loses focus
-  window.on('blur', () => {
-    if (!window.webContents.isDevToolsOpened()) {
-      window.hide()
-    }
-  })
+    // Hide the window when it loses focus
+    window.on('blur', () => {
+        if (!window.webContents.isDevToolsOpened()) {
+            window.hide()
+        }
+    })
 }
 
 const toggleWindow = () => {
-  if (window.isVisible()) {
-    window.hide()
-  } else {
-    showWindow()
-  }
+    if (window.isVisible()) {
+        window.hide()
+    } else {
+        showWindow()
+    }
 }
 
 const showWindow = () => {
-  const position = getWindowPosition()
-  window.setPosition(position.x, position.y, false)
-  window.show()
-  window.focus()
+    const position = getWindowPosition()
+    window.setPosition(position.x, position.y, false)
+    window.show()
+    window.focus()
 }
 
 ipcMain.on('show-window', () => {
-  showWindow()
+    showWindow()
 })
