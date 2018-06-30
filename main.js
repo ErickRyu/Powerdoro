@@ -1,7 +1,8 @@
-const electron = require('electron');
-const {app, BrowserWindow, Menu, Tray, ipcMain} = require('electron');
+const electron = require('electron')
+const {app, BrowserWindow, Menu, Tray, ipcMain} = require('electron')
 const moment = require('moment')
 const momentDurationFormatSetup = require('moment-duration-format')
+const fs = require('fs')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -19,7 +20,7 @@ function createBlockConcentrationWindow () {
     for (var i in displays) {
         if (displays[i].bounds.x != 0 || displays[i].bounds.y != 0) {
             externalDisplay = displays[i]
-            break;
+            break
         }
     }
 
@@ -143,7 +144,12 @@ ipcMain.on('asynchronous-message', (event, arg) => {
 
 
 ipcMain.on('retrospect-message', (event, arg) => {
-    console.log(arg)
+    fs.appendFile('retrospect.txt', arg + '\n', (err)=>{
+        if(err){
+            console.log(err)
+            throw err
+        }
+    })
     mainWindow.setClosable(true)
     mainWindow.close()
 
