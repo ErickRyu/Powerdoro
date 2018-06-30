@@ -73,10 +73,6 @@ ipcMain.on('asynchronous-message', (event, arg) => {
     startTimer(0, arg)
 })
 
-ipcMain.on('synchronous-message', (event, arg) => {
-    console.log(arg) // prints "ping"
-    event.returnValue = 'pong'
-})
 
 app.on('ready', ()=>{
     createTray()
