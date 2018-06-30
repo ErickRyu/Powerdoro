@@ -10,7 +10,7 @@ let mainWindow, tray = null
 let min, sec, ms
 let intervalObj
 
-function createWindow () {
+function createBlockConcentrationWindow () {
     // Create the browser window.
     var electronScreen = electron.screen
     var displays = electronScreen.getAllDisplays()
@@ -62,7 +62,7 @@ function startTimer(min, sec){
 
         if(ms <= 0){
             clearTimeout(intervalObj)
-            createWindow()
+            createBlockConcentrationWindow()
         }
 
     }, 1000)
@@ -70,8 +70,6 @@ function startTimer(min, sec){
 
 
 ipcMain.on('asynchronous-message', (event, arg) => {
-    console.log(arg) // prints "ping"
-    //event.sender.send('asynchronous-reply', 'pong')
     startTimer(0, arg)
 })
 
@@ -98,7 +96,7 @@ app.on('activate', function () {
     // On OS X it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (mainWindow === null) {
-        createWindow()
+        createBlockConcentrationWindow()
     }
 })
 
