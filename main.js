@@ -104,6 +104,8 @@ const createTrayWindow = () => {
         fullscreenable: false,
         resizable: false,
         transparent: true,
+        movable: false,
+
         'node-integration': false
     })
     // This is where the index.html file is loaded into the window
