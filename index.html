@@ -5,10 +5,10 @@
         <title>Time's up</title>
         <script src="./renderer.js"></script>
         <style>
-          *{
-              background-color: black;
-              color: white;
-          }
+*{
+    background-color: black;
+    color: white;
+}
           body{
           }
           .container {
@@ -20,6 +20,22 @@
           h1 {
               font-size: 200px;
           }
+          .retrospect {
+              font-size: 20px;
+              background-color: black;
+              color: white;
+              border: solid 1px white;
+              outline-width: 0px;
+              width: 900px;
+          }
+          .submit_btn{
+              font-size: 20px;
+              background-color: rgba(0,0,0,0);
+              color: white;
+              outline-width: 0px;
+              border: 0px;
+
+          }
         </style>
     </head>
     <body>
@@ -27,7 +43,7 @@
             <h1>Time's up!</h1>
             <form method="post" onsubmit="sendRetrospect(event)">
                 <input type="text" class="retrospect" id="retrospect" autofocus>
-                <input type="submit" value="send">
+                <input type="submit" class="submit_btn" value="▻">
             </form>
         </div>
     </body>
