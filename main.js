@@ -71,6 +71,7 @@ function startTimer(min, sec){
 
 ipcMain.on('asynchronous-message', (event, arg) => {
     startTimer(0, arg)
+    window.hide();
 })
 
 
