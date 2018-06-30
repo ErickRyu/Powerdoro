@@ -112,8 +112,9 @@ function setStopTimerTray(){
 }
 
 function setTrayTemplate(template){
-    const contextMenu = Menu.buildFromTemplate(template)
-    tray.setContextMenu(contextMenu)
+    createWindow2()
+    //const contextMenu = Menu.buildFromTemplate(template)
+    //tray.setContextMenu(contextMenu)
 }
 
 app.on('ready', ()=>{
@@ -141,7 +142,6 @@ app.on('activate', function () {
 
 const createTray = () => {
     tray = new Tray('appicon.png')
-    console.log('done')
     tray.on('click', function (event) {
         toggleWindow()
     })
