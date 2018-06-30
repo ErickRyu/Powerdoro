@@ -150,6 +150,9 @@ ipcMain.on('retrospect-message', (event, arg) => {
 })
 
 
+app.dock.hide()
+
+
 app.on('ready', ()=>{
     createTray()
     createTrayWindow()
