@@ -1,10 +1,14 @@
 const {ipcRenderer} = require('electron')
 
 
-function sendTime(evnet){
+function sendTime(event){
     event.preventDefault()
     let time = document.getElementById('time').value;
 
     ipcRenderer.send('asynchronous-message', time)
 }
 
+function sendRetrospect(event){
+    let retrospect = document.getElementById('retrospect').value;
+    ipcRenderer.send('retrospect-message', retrospect)
+}

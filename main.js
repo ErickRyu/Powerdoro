@@ -41,7 +41,6 @@ function createBlockConcentrationWindow () {
     mainWindow.loadFile('index.html')
 
     mainWindow.setClosable(false);
-    setTimeout(()=>{mainWindow.setClosable(true)}, 3000);
 
     // Emitted when the window is closed.
     mainWindow.on('closed', function () {
@@ -140,6 +139,14 @@ const showTrayWindow = () => {
 ipcMain.on('asynchronous-message', (event, arg) => {
     startTimer(0, arg)
     trayWindow.hide();
+})
+
+
+ipcMain.on('retrospect-message', (event, arg) => {
+    console.log(arg)
+    mainWindow.setClosable(true)
+    mainWindow.close()
+
 })
 
 

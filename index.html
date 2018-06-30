@@ -3,6 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <title>Time's up</title>
+        <script src="./renderer.js"></script>
         <style>
           *{
               background-color: black;
@@ -24,8 +25,10 @@
     <body>
         <div class="container">
             <h1>Time's up!</h1>
+            <form method="post" onsubmit="sendRetrospect(event)">
+                <input type="text" class="retrospect" id="retrospect" autofocus>
+                <input type="submit" value="send">
+            </form>
         </div>
-        <script>
-        </script>
     </body>
 </html>
