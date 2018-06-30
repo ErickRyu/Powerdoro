@@ -97,8 +97,8 @@ const getTrayWindowPosition= () => {
 // Creates window & specifies its values
 const createTrayWindow = () => {
     trayWindow = new BrowserWindow({
-        width: 250,
-        height: 310,
+        width: 220,
+        height: 100,
         show: false,
         frame: false,
         fullscreenable: false,

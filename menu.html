@@ -3,9 +3,27 @@
     <head>
 <style>
 .container{
-    width: 500px;
-        height: 500px;
-            background-color: black;
+    width: 200px;
+    height: 80px;
+    background-color: black;
+        border-radius: 10px;
+}
+#time{
+    margin: 20px;
+    background-color: black;
+    color: white;
+    font-size: 20px;
+    border: 0px;
+    outline-width: 0px;
+    width: 100px;
+}
+.submit_btn{
+    font-size: 20px;
+    background-color: rgba(0,0,0,0);
+    color: white;
+    outline-width: 0px;
+    border: 0px;
+
 }
 </style>
 <script src="./renderer.js"></script>
@@ -13,8 +31,8 @@
     <body>
         <div class="container" name="timeform"> 
             <form action='post' onsubmit='sendTime(event)'>
-                <input type="text" id="time" autofocus>
-               <input type="submit" value="send">
+                <input type="text" id="time" autofocus placeholder="Time">
+               <input type="submit" class="submit_btn" value="▻">
             </form>
         </div>
     </body>
