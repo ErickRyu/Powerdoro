@@ -6,7 +6,7 @@ const momentDurationFormatSetup = require('moment-duration-format')
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 
-let mainWindow, tray = null
+let mainWindow, tray, trayWindow = null
 let min, sec, ms
 let intervalObj
 
@@ -81,7 +81,7 @@ const createTray = () => {
 
 
 const getTrayWindowPosition= () => {
-    const windowBounds = window.getBounds()
+    const windowBounds = trayWindow.getBounds()
     const trayBounds = tray.getBounds()
 
     // Center window horizontally below the tray icon
@@ -96,7 +96,7 @@ const getTrayWindowPosition= () => {
 
 // Creates window & specifies its values
 const createTrayWindow = () => {
-    window = new BrowserWindow({
+    trayWindow = new BrowserWindow({
         width: 250,
         height: 310,
         show: false,
@@ -107,37 +107,37 @@ const createTrayWindow = () => {
         'node-integration': false
     })
     // This is where the index.html file is loaded into the window
-    window.loadURL('file://' + __dirname + '/menu.html');
+    trayWindow.loadURL('file://' + __dirname + '/menu.html');
 
     // Hide the window when it loses focus
-    window.on('blur', () => {
-        if (!window.webContents.isDevToolsOpened()) {
-            window.hide()
+    trayWindow.on('blur', () => {
+        if (!trayWindow.webContents.isDevToolsOpened()) {
+            trayWindow.hide()
         }
     })
 }
 
 
 const toggleWindow = () => {
-    if (window.isVisible()) {
-        window.hide()
+    if (trayWindow.isVisible()) {
+        trayWindow.hide()
     } else {
-        showWindow()
+        showTrayWindow()
     }
 }
 
 
-const showWindow = () => {
+const showTrayWindow = () => {
     const position = getTrayWindowPosition()
-    window.setPosition(position.x, position.y, false)
-    window.show()
-    window.focus()
+    trayWindow.setPosition(position.x, position.y, false)
+    trayWindow.show()
+    trayWindow.focus()
 }
 
 
 ipcMain.on('asynchronous-message', (event, arg) => {
     startTimer(0, arg)
-    window.hide();
+    trayWindow.hide();
 })
 
 
