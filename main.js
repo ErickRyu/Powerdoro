@@ -56,41 +56,18 @@ function getPrettyTime(ms){
 function startTimer(min, sec){
     ms = ((min * 60) + sec) * 1000
     tray.setTitle( getPrettyTime(ms))
-    setStartTimerTray()
     intervalObj = setInterval(()=>{
         ms -= 1000
         tray.setTitle( getPrettyTime(ms) )
 
         if(ms <= 0){
             clearTimeout(intervalObj)
-            setStopTimerTray()
             createWindow()
         }
 
     }, 1000)
 }
 
-function initTray(){
-    tray = new Tray('./appicon.png')
-    tray.setTitle('Timer')
-    tray.setToolTip('This is my app')
-    setTrayTemplate(startTimerTemplate)
-
-}
-
-const stopTimerTemplate = [
-    {label: 'stoptimer', click(){
-        clearTimeout(intervalObj)
-        setStopTimerTray()
-    }}
-]
-const startTimerTemplate = [
-    {label: 'start 5 sec', click(){startTimer(0, 5)}},
-    {label: 'start 10 min', click(){
-        startTimer(10, 0)
-        console.log('start sending')
-    }},
-]
 
 ipcMain.on('asynchronous-message', (event, arg) => {
     console.log(arg) // prints "ping"
@@ -102,25 +79,10 @@ ipcMain.on('synchronous-message', (event, arg) => {
     console.log(arg) // prints "ping"
     event.returnValue = 'pong'
 })
-function setStartTimerTray(){
-    setTrayTemplate(stopTimerTemplate)
-}
-
-function setStopTimerTray(){ 
-    tray.setTitle('Timer')
-    setTrayTemplate(startTimerTemplate)
-}
-
-function setTrayTemplate(template){
-    createWindow2()
-    //const contextMenu = Menu.buildFromTemplate(template)
-    //tray.setContextMenu(contextMenu)
-}
 
 app.on('ready', ()=>{
-    //initTray()
     createTray()
-    createWindow2()
+    createTrayWindow()
 })
 
 // Quit when all windows are closed.
@@ -147,7 +109,7 @@ const createTray = () => {
     })
 }
 
-const getWindowPosition = () => {
+const getTrayWindowPosition= () => {
     const windowBounds = window.getBounds()
     const trayBounds = tray.getBounds()
 
@@ -161,7 +123,7 @@ const getWindowPosition = () => {
 }
 
 // Creates window & specifies its values
-const createWindow2 = () => {
+const createTrayWindow = () => {
     window = new BrowserWindow({
         width: 250,
         height: 310,
@@ -192,12 +154,8 @@ const toggleWindow = () => {
 }
 
 const showWindow = () => {
-    const position = getWindowPosition()
+    const position = getTrayWindowPosition()
     window.setPosition(position.x, position.y, false)
     window.show()
     window.focus()
 }
-
-ipcMain.on('show-window', () => {
-    showWindow()
-})
