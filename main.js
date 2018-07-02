@@ -138,7 +138,7 @@ const showTrayWindow = () => {
 
 
 ipcMain.on('asynchronous-message', (event, arg) => {
-    startTimer(0, arg)
+    startTimer(arg, 0)
     trayWindow.hide();
 })
 
