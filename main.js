@@ -12,8 +12,7 @@ let min, sec, ms
 let intervalObj
 
 
-function createBlockConcentrationWindow () {
-    // Create the browser window.
+function getExternalDisplayThreashold(){
     var electronScreen = electron.screen
     var displays = electronScreen.getAllDisplays()
     var externalDisplay = null
@@ -24,12 +23,16 @@ function createBlockConcentrationWindow () {
         }
     }
 
-    let xThreshold = 0
-    let yThreshold = 0
-    if (externalDisplay) {
-        xThreshold = externalDisplay.bounds.x
-        yThreshold = externalDisplay.bounds.y
-    }
+    return externalDisplay?  {x: externalDisplay.bounds.x, y: externalDisplay.bounds.y} : {x: 0, y:0}
+}
+
+
+function createBlockConcentrationWindow () {
+    let displayThreashold = getExternalDisplayThreashold()
+
+    let xThreshold = displayThreashold.x
+    let yThreshold = displayThreashold.y
+
     let setting = {
         x: xThreshold,
         y: yThreshold,
@@ -83,13 +86,15 @@ const createTray = () => {
 const getTrayWindowPosition= () => {
     const windowBounds = trayWindow.getBounds()
     const trayBounds = tray.getBounds()
+    const externalDisplay = getExternalDisplayThreashold();
 
     // Center window horizontally below the tray icon
     const x = Math.round(trayBounds.x + (trayBounds.width / 2) - (windowBounds.width / 2))
 
     // Position window 4 pixels vertically below the tray icon
-    const y = Math.round(trayBounds.y + trayBounds.height + 3)
+    const y = externalDisplay.y + Math.round(trayBounds.y + trayBounds.height + 3)
 
+    console.log(x, y)
     return {x: x, y: y}
 }
 
