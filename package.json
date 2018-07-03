@@ -4,7 +4,8 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "test": "mocha"
   },
   "repository": "",
   "keywords": [
@@ -20,6 +21,7 @@
     "electron": "^2.0.0"
   },
   "dependencies": {
+    "mocha": "^5.2.0",
     "moment": "^2.22.2",
     "moment-duration-format": "^2.2.2"
   }
