@@ -10,12 +10,17 @@ $ npm install
 $ npm start
 ```
 ## Usage
-![alt step1 image](screenshots/step01.png "Click tray, enter time and start")
-![alt step2 image](screenshots/step02.png "Time's over")
-![alt step3 image](screenshots/step03.png "You should enter retrospect and then
-        it will be closed")
-![alt step4 image](screenshots/step04.png "You can read your retrospect in
-        retrospect.txt")
+### Click tray, enter time and start
+![alt text](screenshots/step01.png "step1 image")
+
+### Time's over
+![alt text](screenshots/step02.png "step2 image")
+
+### You should enter retrospect and then it will be closed
+![alt text](screenshots/step03.png "step3 image")
+
+### You can read your retrospect in retrospect.txt
+![alt text](screenshots/step04.png "step4 image")
 
 # Roadmap
 [Trello board](https://trello.com/b/zDA1vG6u)
