@@ -12,3 +12,8 @@ function sendRetrospect(event){
     let retrospect = document.getElementById('retrospect').value;
     ipcRenderer.send('retrospect-message', retrospect)
 }
+
+function stopTimer(){
+    ipcRenderer.send('stop-message', 'stop')
+
+}
