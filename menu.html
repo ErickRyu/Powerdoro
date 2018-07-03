@@ -4,7 +4,7 @@
 <style>
 .container{
     width: 200px;
-    height: 80px;
+    height: 100px;
     background-color: black;
         border-radius: 10px;
 }
@@ -23,7 +23,14 @@
     color: white;
     outline-width: 0px;
     border: 0px;
-
+}
+.btn{
+    font-size: 16px;
+    background-color: rgba(0,0,0,0);
+    color: white;
+    outline-width: 0px;
+    border: 0px;
+    margin-left: 145px;
 }
 </style>
 <script src="./renderer.js"></script>
@@ -34,6 +41,7 @@
                 <input type="text" id="time" autofocus placeholder="Time">
                <input type="submit" class="submit_btn" value="▻">
             </form>
+                <input class="btn" type="button" onclick="stopTimer()" value="✕">
         </div>
     </body>
 </html>

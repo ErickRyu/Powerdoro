@@ -102,7 +102,7 @@ const getTrayWindowPosition= () => {
 const createTrayWindow = () => {
     trayWindow = new BrowserWindow({
         width: 220,
-        height: 100,
+        height: 120,
         show: false,
         frame: false,
         fullscreenable: false,
@@ -157,6 +157,12 @@ ipcMain.on('retrospect-message', (event, arg) => {
     mainWindow.setClosable(true)
     mainWindow.close()
 
+})
+
+
+ipcMain.on('stop-message', (event, arg) => {
+    clearTimeout(intervalObj)
+    tray.setTitle( '00:00' )
 })
 
 
