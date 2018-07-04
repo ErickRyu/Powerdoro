@@ -95,7 +95,6 @@ const getTrayWindowPosition= () => {
     // Position window 4 pixels vertically below the tray icon
     const y = externalDisplay.y + Math.round(trayBounds.y + trayBounds.height + 3)
 
-    console.log(x, y)
     return {x: x, y: y}
 }
 
