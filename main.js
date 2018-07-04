@@ -64,8 +64,9 @@ function startTimer(min, sec){
     intervalObj = setInterval(()=>{
         ms -= 1000
         tray.setTitle( getPrettyTime(ms) )
-
-        if(ms <= 0){
+        trayWindow.webContents.send('time-update', getPrettyTime(ms))
+        if(ms <= 0){ // Todo: Refactoring duplicated stop timer action
+            trayWindow.webContents.send('stoped-timer', 'stop')
             clearTimeout(intervalObj)
             createBlockConcentrationWindow()
         }
@@ -162,6 +163,7 @@ ipcMain.on('retrospect-message', (event, arg) => {
 
 
 ipcMain.on('stop-message', (event, arg) => {
+    trayWindow.webContents.send('stoped-timer', 'stop')
     clearTimeout(intervalObj)
     tray.setTitle( '00:00' )
 })

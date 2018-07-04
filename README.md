@@ -1,5 +1,5 @@
 # Powerdoro
-Pomodoro + simple timer
+Pomodoro + small timer
 
 # Installation and Usage
 ## Installation
