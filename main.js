@@ -1,5 +1,5 @@
 const electron = require('electron')
-const {app, BrowserWindow, Menu, Tray, ipcMain} = require('electron')
+const {app, BrowserWindow, Menu, Tray, ipcMain, globalShortcut} = require('electron')
 const moment = require('moment')
 const momentDurationFormatSetup = require('moment-duration-format')
 const fs = require('fs')
@@ -110,7 +110,7 @@ const createTrayWindow = () => {
         resizable: false,
         transparent: true,
         movable: false,
-
+        closable: false,
         'node-integration': false
     })
     // This is where the index.html file is loaded into the window
@@ -172,6 +172,9 @@ app.dock.hide()
 
 
 app.on('ready', ()=>{
+    globalShortcut.register('Command+Q', ()=>{
+      app.exit()
+    })
     createTray()
     createTrayWindow()
 })
