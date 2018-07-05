@@ -3,9 +3,17 @@
   "version": "0.0.1",
   "description": "",
   "main": "main.js",
+  "build": {
+      "appId": "com.electron.powerdoro",
+      "mac": {
+          "category": "public.app-category.productivity"
+      }
+  },
   "scripts": {
     "start": "electron .",
-    "test": "mocha"
+    "test": "mocha",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
   },
   "repository": "",
   "keywords": [
@@ -18,7 +26,8 @@
   "author": "",
   "license": "",
   "devDependencies": {
-    "electron": "^2.0.0"
+    "electron": "^2.0.0",
+    "electron-builder": "^20.19.1"
   },
   "dependencies": {
     "mocha": "^5.2.0",
