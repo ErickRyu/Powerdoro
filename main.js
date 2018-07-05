@@ -3,6 +3,8 @@ const {app, BrowserWindow, Menu, Tray, ipcMain, globalShortcut} = require('elect
 const moment = require('moment')
 const momentDurationFormatSetup = require('moment-duration-format')
 const fs = require('fs')
+const path = require('path');
+const homedir = require('os').homedir();
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -42,7 +44,8 @@ function createBlockConcentrationWindow () {
         movable: false,
     }
     mainWindow = new BrowserWindow(setting)
-    mainWindow.loadFile('index.html')
+    let mainWindowPath = path.join(__dirname, 'index.html')
+    mainWindow.loadFile(mainWindowPath)
 
     mainWindow.setClosable(false);
 
@@ -77,7 +80,8 @@ function startTimer(min, sec){
 
 
 const createTray = () => {
-    tray = new Tray('appicon.png')
+    let iconPath = path.join(__dirname, 'appicon.png')
+    tray = new Tray(iconPath)
     tray.on('click', function (event) {
         toggleWindow()
     })
@@ -149,7 +153,8 @@ ipcMain.on('asynchronous-message', (event, arg) => {
 
 
 ipcMain.on('retrospect-message', (event, arg) => {
-    fs.appendFile('retrospect.txt', arg + '\n', (err)=>{
+    let retroPath = path.join(homedir+ '/Desktop/retrospect.txt')
+    fs.appendFile(retroPath, arg + '\n', (err)=>{
         if(err){
             console.log(err)
             throw err
