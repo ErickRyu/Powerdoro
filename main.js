@@ -97,7 +97,13 @@ const getTrayWindowPosition= () => {
     const x = Math.round(trayBounds.x + (trayBounds.width / 2) - (windowBounds.width / 2))
 
     // Position window 4 pixels vertically below the tray icon
-    const y = externalDisplay.y + Math.round(trayBounds.y + trayBounds.height + 3)
+	let y = 0
+	if(process.platform == 'darwin'){
+		y = externalDisplay.y + Math.round(trayBounds.y + trayBounds.height + 3)
+	}else{
+		y = externalDisplay.y + trayBounds.y - (3 + 120) //Todo: Extract constant and replace to trayWindow's height
+	}
+	
 
     return {x: x, y: y}
 }
@@ -173,7 +179,8 @@ ipcMain.on('stop-message', (event, arg) => {
 })
 
 
-app.dock.hide()
+if(process.platform == 'darwin')
+	app.dock.hide()
 
 
 app.on('ready', ()=>{
