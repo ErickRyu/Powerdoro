@@ -4,10 +4,10 @@
   "description": "",
   "main": "main.js",
   "build": {
-      "appId": "com.electron.powerdoro",
-      "mac": {
-          "category": "public.app-category.productivity"
-      }
+    "appId": "com.electron.powerdoro",
+    "mac": {
+      "category": "public.app-category.productivity"
+    }
   },
   "scripts": {
     "start": "electron .",
