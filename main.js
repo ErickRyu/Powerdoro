@@ -60,10 +60,13 @@ function createBlockConcentrationWindow () {
 function startTimer(min, sec){
     let ms = ((min * 60) + sec) * 1000
     tray.setTitle( getPrettyTime(ms))
-    intervalObj = setInterval(()=>{
-        ms -= 1000
+    const updateTray = (ms) => {
         tray.setTitle( getPrettyTime(ms) )
         trayWindow.webContents.send('time-update', getPrettyTime(ms))
+    };
+    intervalObj = setInterval(()=>{
+        ms -= 1000
+        updateTray(ms);
         if(ms <= 0){ // Todo: Refactoring duplicated stop timer action
             trayWindow.webContents.send('stoped-timer', 'stop')
             clearTimeout(intervalObj)
