@@ -12,4 +12,8 @@ describe('getPrettyTime()', function() {
     it('changes 1000 ms to 00:01', function() {
         assert.equal(getPrettyTime(1000), '00:01');
     })
+
+    it('changes 59499 ms to 00:59', function() {
+        assert.equal(getPrettyTime(59499), '00:59');
+    })
 })
