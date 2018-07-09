@@ -57,18 +57,18 @@ function createBlockConcentrationWindow () {
 }
 
 
-function updateTray(ms) {
+function updateTray(tray, webContents, ms) {
     tray.setTitle( getPrettyTime(ms) )
-    trayWindow.webContents.send('time-update', getPrettyTime(ms))
+    webContents.send('time-update', getPrettyTime(ms))
 }
 
 
 function startTimer(min, sec){
     let ms = ((min * 60) + sec) * 1000
-    updateTray(ms);
+    updateTray(tray, trayWindow.webContents, ms);
     intervalObj = setInterval(()=>{
         ms -= 1000
-        updateTray(ms);
+        updateTray(tray, trayWindow.webContents, ms);
         if(ms <= 0){ // Todo: Refactoring duplicated stop timer action
             trayWindow.webContents.send('stoped-timer', 'stop')
             clearTimeout(intervalObj)
