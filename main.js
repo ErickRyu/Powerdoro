@@ -11,7 +11,7 @@ const homedir = require('os').homedir();
 // be closed automatically when the JavaScript object is garbage collected.
 
 let mainWindow, tray, trayWindow = null
-let min, sec, ms
+let min, sec;
 let intervalObj
 
 
@@ -58,7 +58,7 @@ function createBlockConcentrationWindow () {
 
 
 function startTimer(min, sec){
-    ms = ((min * 60) + sec) * 1000
+    let ms = ((min * 60) + sec) * 1000
     tray.setTitle( getPrettyTime(ms))
     intervalObj = setInterval(()=>{
         ms -= 1000
