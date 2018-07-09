@@ -55,11 +55,6 @@ function createBlockConcentrationWindow () {
 }
 
 
-function getPrettyTime(ms){
-    return getPrettyTime(ms);
-}
-
-
 function startTimer(min, sec){
     ms = ((min * 60) + sec) * 1000
     tray.setTitle( getPrettyTime(ms))
