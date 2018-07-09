@@ -6,6 +6,7 @@ const getPrettyTime = require('./getPrettyTime');
 const fs = require('fs')
 const path = require('path');
 const homedir = require('os').homedir();
+const updateTray = require('./updateTray');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -54,12 +55,6 @@ function createBlockConcentrationWindow () {
     mainWindow.on('closed', function () {
         mainWindow = null
     })
-}
-
-
-function updateTray(tray, webContents, ms) {
-    tray.setTitle( getPrettyTime(ms) )
-    webContents.send('time-update', getPrettyTime(ms))
 }
 
 
