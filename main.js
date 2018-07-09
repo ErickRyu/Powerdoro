@@ -1,7 +1,7 @@
 const electron = require('electron')
 const {app, BrowserWindow, Menu, Tray, ipcMain, globalShortcut} = require('electron')
 const moment = require('moment')
-const momentDurationFormatSetup = require('moment-duration-format')
+require('moment-duration-format')
 const fs = require('fs')
 const path = require('path');
 const homedir = require('os').homedir();
