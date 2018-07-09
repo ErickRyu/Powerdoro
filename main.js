@@ -1,3 +1,5 @@
+'use strict';
+
 const electron = require('electron')
 const {app, BrowserWindow, Tray, ipcMain, globalShortcut} = require('electron')
 const moment = require('moment')
