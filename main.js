@@ -1,7 +1,6 @@
 const electron = require('electron')
 const {app, BrowserWindow, Tray, ipcMain, globalShortcut} = require('electron')
-const moment = require('moment')
-require('moment-duration-format')
+const getPrettyTime = require('./getPrettyTime');
 const fs = require('fs')
 const path = require('path');
 const homedir = require('os').homedir();
@@ -57,7 +56,7 @@ function createBlockConcentrationWindow () {
 
 
 function getPrettyTime(ms){
-    return moment.duration(ms, 'milliseconds').format('mm:ss', {trim: false})
+    return getPrettyTime(ms);
 }
 
 
