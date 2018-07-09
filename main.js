@@ -57,12 +57,14 @@ function createBlockConcentrationWindow () {
 }
 
 
+function updateTray(ms) {
+    tray.setTitle( getPrettyTime(ms) )
+    trayWindow.webContents.send('time-update', getPrettyTime(ms))
+}
+
+
 function startTimer(min, sec){
     let ms = ((min * 60) + sec) * 1000
-    const updateTray = (ms) => {
-        tray.setTitle( getPrettyTime(ms) )
-        trayWindow.webContents.send('time-update', getPrettyTime(ms))
-    };
     updateTray(ms);
     intervalObj = setInterval(()=>{
         ms -= 1000
