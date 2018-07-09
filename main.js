@@ -1,5 +1,5 @@
 const electron = require('electron')
-const {app, BrowserWindow, Menu, Tray, ipcMain, globalShortcut} = require('electron')
+const {app, BrowserWindow, Tray, ipcMain, globalShortcut} = require('electron')
 const moment = require('moment')
 require('moment-duration-format')
 const fs = require('fs')
