@@ -93,10 +93,6 @@ const platforms = {
     }
 };
 
-const getTrayWindowPosition= () => {
-    return calcPosition(platforms[process.platform].calcRelativeY, tray.getBounds(), trayWindow.getBounds().width, getExternalDisplayThreashold().y);
-}
-
 
 // Creates window & specifies its values
 const createTrayWindow = () => {
@@ -134,7 +130,8 @@ const toggleWindow = () => {
 
 
 const showTrayWindow = () => {
-    const position = getTrayWindowPosition()
+    const position = calcPosition(platforms[process.platform].calcRelativeY, tray.getBounds(), trayWindow.getBounds().width, getExternalDisplayThreashold().y);
+
     trayWindow.setPosition(position.x, position.y, false)
     trayWindow.show()
     trayWindow.focus()
