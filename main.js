@@ -87,9 +87,11 @@ const createTray = () => {
 const platforms = {
     darwin: {
         calcRelativeY: (trayBounds) => Math.round(trayBounds.y + trayBounds.height + 3),
+        hide: (app) => app.dock.hide(),
     },
     win32: {
         calcRelativeY: (trayBounds) => trayBounds.y - (3 + 120), //Todo: Extract constant and replace to trayWindow's height
+        hide: (app) => {},
     }
 };
 
@@ -170,8 +172,7 @@ ipcMain.on('stop-message', (event, arg) => {
 })
 
 
-if(process.platform == 'darwin')
-	app.dock.hide()
+platforms[process.platform].hide(app);
 
 
 app.on('ready', ()=>{
