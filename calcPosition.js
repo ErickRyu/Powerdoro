@@ -1,4 +1,3 @@
-module.exports = (calcRelativeY, trayBounds, windowWidth, externalDisplayY) => ({
-    x: Math.round(trayBounds.x + (trayBounds.width / 2) - (windowWidth / 2)),
-    y: externalDisplayY + calcRelativeY(trayBounds),
- });
+const calcTrayWindowXy = require('./calcTrayWindowXy');;
+
+module.exports = (calcRelativeY, trayBounds, windowWidth, externalDisplayY) => calcTrayWindowXy(calcRelativeY(trayBounds), trayBounds, windowWidth, externalDisplayY);
