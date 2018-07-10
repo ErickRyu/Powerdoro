@@ -1,3 +1,5 @@
+'use strict';
+
 const getPrettyTime = require('./getPrettyTime');
 
 module.exports = (tray, webContents, ms) => {
