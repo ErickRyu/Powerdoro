@@ -1,3 +1,5 @@
+'use strict';
+
 const calcTrayWindowXy = require('../calcTrayWindowXy');
 const assert = require('assert');
 
