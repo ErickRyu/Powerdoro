@@ -88,10 +88,12 @@ const platforms = {
     darwin: {
         calcRelativeY: (trayBounds) => Math.round(trayBounds.y + trayBounds.height + 3),
         hide: (app) => app.dock.hide(),
+        quit: (app) => app.quit(),
     },
     win32: {
         calcRelativeY: (trayBounds) => trayBounds.y - (3 + 120), //Todo: Extract constant and replace to trayWindow's height
         hide: (app) => {},
+        quit: (app) => {},
     }
 };
 
@@ -188,9 +190,7 @@ app.on('ready', ()=>{
 app.on('window-all-closed', function () {
     // On OS X it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
-    if (process.platform !== 'darwin') {
-        app.quit()
-    }
+    platforms[process.platform].quit(app);
 })
 
 
