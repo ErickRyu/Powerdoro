@@ -12,4 +12,11 @@ describe('calcPosition()', function() {
         assert.equal(position.x, 3068);
         assert.equal(position.y, 757);
     })
+
+    it('calculates on Mac', function() {
+        const position = calcPosition('darwin', { x: 625, y: 0, width: 38, height: 22 }, 220, 0);
+
+        assert.equal(position.x, 534);
+        assert.equal(position.y, 25);
+    })
 })
