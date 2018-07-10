@@ -7,7 +7,7 @@ const fs = require('fs')
 const path = require('path');
 const homedir = require('os').homedir();
 const updateTray = require('./updateTray');
-const calcPosition = require('./calcPosition');
+const calcTrayWindowXy = require('./calcTrayWindowXy');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -130,7 +130,12 @@ const toggleWindow = () => {
 
 
 const showTrayWindow = () => {
-    const position = calcPosition(platforms[process.platform].calcRelativeY, tray.getBounds(), trayWindow.getBounds().width, getExternalDisplayThreashold().y);
+    const position = calcTrayWindowXy(
+        platforms[process.platform].calcRelativeY(tray.getBounds()),
+        tray.getBounds(),
+        trayWindow.getBounds().width,
+        getExternalDisplayThreashold().y
+    );
 
     trayWindow.setPosition(position.x, position.y, false)
     trayWindow.show()
