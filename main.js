@@ -94,11 +94,10 @@ const platforms = {
 };
 
 const getTrayWindowPosition= () => {
-    const windowBounds = trayWindow.getBounds()
     const trayBounds = tray.getBounds()
     const externalDisplay = getExternalDisplayThreashold();
 
-    return calcPosition(platforms[process.platform].calcRelativeY, trayBounds, windowBounds.width, externalDisplay.y);
+    return calcPosition(platforms[process.platform].calcRelativeY, trayBounds, trayWindow.getBounds().width, externalDisplay.y);
 }
 
 
