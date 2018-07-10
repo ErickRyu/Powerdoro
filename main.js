@@ -1,16 +1,18 @@
+'use strict';
+
 const electron = require('electron')
-const {app, BrowserWindow, Menu, Tray, ipcMain, globalShortcut} = require('electron')
-const moment = require('moment')
-const momentDurationFormatSetup = require('moment-duration-format')
+const {app, BrowserWindow, Tray, ipcMain, globalShortcut} = require('electron')
+const getPrettyTime = require('./getPrettyTime');
 const fs = require('fs')
 const path = require('path');
 const homedir = require('os').homedir();
+const updateTray = require('./updateTray');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 
 let mainWindow, tray, trayWindow = null
-let min, sec, ms
+let min, sec;
 let intervalObj
 
 
@@ -56,18 +58,12 @@ function createBlockConcentrationWindow () {
 }
 
 
-function getPrettyTime(ms){
-    return moment.duration(ms, 'milliseconds').format('mm:ss', {trim: false})
-}
-
-
 function startTimer(min, sec){
-    ms = ((min * 60) + sec) * 1000
-    tray.setTitle( getPrettyTime(ms))
+    let ms = ((min * 60) + sec) * 1000
+    updateTray(tray, trayWindow.webContents, ms);
     intervalObj = setInterval(()=>{
         ms -= 1000
-        tray.setTitle( getPrettyTime(ms) )
-        trayWindow.webContents.send('time-update', getPrettyTime(ms))
+        updateTray(tray, trayWindow.webContents, ms);
         if(ms <= 0){ // Todo: Refactoring duplicated stop timer action
             trayWindow.webContents.send('stoped-timer', 'stop')
             clearTimeout(intervalObj)
@@ -103,7 +99,7 @@ const getTrayWindowPosition= () => {
 	}else{
 		y = externalDisplay.y + trayBounds.y - (3 + 120) //Todo: Extract constant and replace to trayWindow's height
 	}
-	
+
 
     return {x: x, y: y}
 }
