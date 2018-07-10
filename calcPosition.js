@@ -4,8 +4,9 @@ module.exports = function(platform, trayBounds, windowWidth, externalDisplayY) {
     // Position window 4 pixels vertically below the tray icon
     let y = externalDisplayY;
     const calcRelativeYOnMac = (trayBounds) => Math.round(trayBounds.y + trayBounds.height + 3);
+    const calcRelativeYOnWin32 = (trayBounds) => trayBounds.y - (3 + 120); //Todo: Extract constant and replace to trayWindow's height
     y += platform == 'darwin'
         ? calcRelativeYOnMac(trayBounds)
-        : trayBounds.y - (3 + 120); //Todo: Extract constant and replace to trayWindow's height
+        : calcRelativeYOnWin32(trayBounds);
     return { x: x, y: y };
 }
