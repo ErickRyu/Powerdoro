@@ -84,20 +84,20 @@ const createTray = () => {
     })
 }
 
+const platforms = {
+    darwin: {
+        calcRelativeY: (trayBounds) => Math.round(trayBounds.y + trayBounds.height + 3),
+    },
+    win32: {
+        calcRelativeY: (trayBounds) => trayBounds.y - (3 + 120), //Todo: Extract constant and replace to trayWindow's height
+    }
+};
 
 const getTrayWindowPosition= () => {
     const windowBounds = trayWindow.getBounds()
     const trayBounds = tray.getBounds()
     const externalDisplay = getExternalDisplayThreashold();
 
-    const platforms = {
-        darwin: {
-            calcRelativeY: (trayBounds) => Math.round(trayBounds.y + trayBounds.height + 3),
-        },
-        win32: {
-            calcRelativeY: (trayBounds) => trayBounds.y - (3 + 120), //Todo: Extract constant and replace to trayWindow's height
-        }
-    }
     return calcPosition(platforms[process.platform].calcRelativeY, trayBounds, windowBounds.width, externalDisplay.y);
 }
 
