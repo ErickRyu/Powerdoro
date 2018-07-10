@@ -5,8 +5,10 @@ module.exports = function(platform, trayBounds, windowWidth, externalDisplayY) {
     let y = externalDisplayY;
     const calcRelativeYOnMac = (trayBounds) => Math.round(trayBounds.y + trayBounds.height + 3);
     const calcRelativeYOnWin32 = (trayBounds) => trayBounds.y - (3 + 120); //Todo: Extract constant and replace to trayWindow's height
-    y += platform == 'darwin'
-        ? calcRelativeYOnMac(trayBounds)
-        : calcRelativeYOnWin32(trayBounds);
+    const calcRelativeY = {
+        darwin: calcRelativeYOnMac,
+        win32: calcRelativeYOnWin32,
+    }
+    y += calcRelativeY[platform](trayBounds);
     return { x: x, y: y };
 }
