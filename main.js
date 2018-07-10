@@ -94,7 +94,15 @@ const getTrayWindowPosition= () => {
         darwin: (trayBounds) => Math.round(trayBounds.y + trayBounds.height + 3),
         win32: (trayBounds) => trayBounds.y - (3 + 120), //Todo: Extract constant and replace to trayWindow's height
     }
-    return calcPosition(calcRelativeY[process.platform], trayBounds, windowBounds.width, externalDisplay.y);
+    const platforms = {
+        darwin: {
+            calcRelativeY: calcRelativeY.darwin,
+        },
+        win32: {
+            calcRelativeY: calcRelativeY.win32,
+        }
+    }
+    return calcPosition(platforms[process.platform].calcRelativeY, trayBounds, windowBounds.width, externalDisplay.y);
 }
 
 
