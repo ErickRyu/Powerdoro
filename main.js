@@ -94,9 +94,7 @@ const platforms = {
 };
 
 const getTrayWindowPosition= () => {
-    const externalDisplay = getExternalDisplayThreashold();
-
-    return calcPosition(platforms[process.platform].calcRelativeY, tray.getBounds(), trayWindow.getBounds().width, externalDisplay.y);
+    return calcPosition(platforms[process.platform].calcRelativeY, tray.getBounds(), trayWindow.getBounds().width, getExternalDisplayThreashold().y);
 }
 
 
