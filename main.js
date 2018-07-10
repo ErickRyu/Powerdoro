@@ -90,8 +90,6 @@ const getTrayWindowPosition= () => {
     const trayBounds = tray.getBounds()
     const externalDisplay = getExternalDisplayThreashold();
 
-    console.log(process.platform, trayBounds, windowBounds.width, externalDisplay.y);
-    console.log(calcPosition(process.platform, trayBounds, windowBounds.width, externalDisplay.y))
     return calcPosition(process.platform, trayBounds, windowBounds.width, externalDisplay.y);
 }
 
