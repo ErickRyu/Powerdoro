@@ -1,15 +1,11 @@
 # Powerdoro
 Pomodoro + small timer
 
-Type in time you want, and after time has elapsed, this will be GRAB YOUR ATTENTION as 'small timer' does. But here is different!
-You MUST TYPE IN `RETROSPECT` or some record what did you do in this time. Then block window will be disapear.
-You can find your records in `retrospect.txt`
+Type in time as much as you need. And after the time's up, this will GRAB YOUR ATTENTION as ‘small timer’ does. But here is the difference! You MUST TYPE IN RETROSPECT or some records of what you did during this time. Then your screen blocker will be gone. You can find your records in retrospect.txt
 
-I'll make this timer can repeat automatically like pomodoro timer.
-I have many things to do. You can check roadmap below this README (It is written in Korean) and feel free to add issues.
+I’ll make this timer repeat automatically like pomodoro timer. I've got many things to do. You can check roadmap below this README (It is written in Korean) and feel free to add issues.
 
 Enjoy your flow!
-
 
 
 # Installation and Usage
