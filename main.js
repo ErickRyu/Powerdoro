@@ -7,6 +7,7 @@ const fs = require('fs')
 const path = require('path');
 const homedir = require('os').homedir();
 const updateTray = require('./updateTray');
+const calcTrayWindowXy = require('./calcTrayWindowXy');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -83,20 +84,18 @@ const createTray = () => {
     })
 }
 
-
-const getTrayWindowPosition= () => {
-    const windowBounds = trayWindow.getBounds()
-    const trayBounds = tray.getBounds()
-    const externalDisplay = getExternalDisplayThreashold();
-
-    // Center window horizontally below the tray icon
-    const x = Math.round(trayBounds.x + (trayBounds.width / 2) - (windowBounds.width / 2))
-
-    // Position window 4 pixels vertically below the tray icon
-    const y = externalDisplay.y + Math.round(trayBounds.y + trayBounds.height + 3)
-
-    return {x: x, y: y}
-}
+const platforms = {
+    darwin: {
+        calcRelativeY: (trayBounds) => Math.round(trayBounds.y + trayBounds.height + 3),
+        hide: (app) => app.dock.hide(),
+        quit: (app) => app.quit(),
+    },
+    win32: {
+        calcRelativeY: (trayBounds) => trayBounds.y - (3 + 120), //Todo: Extract constant and replace to trayWindow's height
+        hide: (app) => {},
+        quit: (app) => {},
+    }
+};
 
 
 // Creates window & specifies its values
@@ -135,7 +134,13 @@ const toggleWindow = () => {
 
 
 const showTrayWindow = () => {
-    const position = getTrayWindowPosition()
+    const position = calcTrayWindowXy(
+        platforms[process.platform].calcRelativeY(tray.getBounds()),
+        tray.getBounds(),
+        trayWindow.getBounds().width,
+        getExternalDisplayThreashold().y
+    );
+
     trayWindow.setPosition(position.x, position.y, false)
     trayWindow.show()
     trayWindow.focus()
@@ -169,7 +174,7 @@ ipcMain.on('stop-message', (event, arg) => {
 })
 
 
-app.dock.hide()
+platforms[process.platform].hide(app);
 
 
 app.on('ready', ()=>{
@@ -185,9 +190,7 @@ app.on('ready', ()=>{
 app.on('window-all-closed', function () {
     // On OS X it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
-    if (process.platform !== 'darwin') {
-        app.quit()
-    }
+    platforms[process.platform].quit(app);
 })
 
 
