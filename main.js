@@ -102,7 +102,7 @@ const platforms = {
 const createTrayWindow = () => {
     trayWindow = new BrowserWindow({
         width: 220,
-        height: 120,
+        height: 160,
         show: false,
         frame: false,
         fullscreenable: false,
@@ -174,13 +174,15 @@ ipcMain.on('stop-message', (event, arg) => {
 })
 
 
+ipcMain.on('exit-app', (event, arg) =>{
+      app.exit()
+})
+
+
 platforms[process.platform].hide(app);
 
 
 app.on('ready', ()=>{
-    globalShortcut.register('Command+Q', ()=>{
-      app.exit()
-    })
     createTray()
     createTrayWindow()
 })

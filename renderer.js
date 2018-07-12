@@ -19,6 +19,12 @@ function stopTimer(){
     ipcRenderer.send('stop-message', 'stop')
 
 }
+
+
+function exitApp(){
+    ipcRenderer.send('exit-app', 'exit')
+}
+
 ipcRenderer.on('time-update', (event, arg) =>{ // Todo: Refactoring dupicated get element and consider using Jquery
     document.getElementById('time').value = arg
     document.getElementById('time').disabled = true
@@ -31,3 +37,4 @@ ipcRenderer.on('stoped-timer', (event, arg) =>{
     document.getElementById('submit_btn').disabled = false
     document.getElementById('time').focus()
 })
+
