@@ -8,6 +8,7 @@ const path = require('path');
 const homedir = require('os').homedir();
 const updateTray = require('./updateTray');
 const calcTrayWindowXy = require('./calcTrayWindowXy');
+const AutoLaunch = require('auto-launch');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -15,6 +16,12 @@ const calcTrayWindowXy = require('./calcTrayWindowXy');
 let mainWindow, tray, trayWindow = null
 let min, sec;
 let intervalObj
+
+var AutoLauncher = new AutoLaunch({
+    name: 'powerdoro',
+    path: '/Applications/powerdoro.app',
+})
+AutoLauncher.enable();
 
 
 function getExternalDisplayThreashold(){
