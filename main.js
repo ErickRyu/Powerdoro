@@ -13,7 +13,6 @@ const AutoLaunch = require('auto-launch');
 // be closed automatically when the JavaScript object is garbage collected.
 
 let mainWindow, tray, trayWindow = null
-let min, sec;
 let intervalObj
 
 var AutoLauncher = new AutoLaunch({
