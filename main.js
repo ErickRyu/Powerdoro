@@ -75,6 +75,7 @@ function stopTimer(){
 
 function startTimer(min, sec){
     let ms = ((min * 60) + sec) * 1000
+    ms = Math.ceil(ms / 1000) * 1000; // Round up by one millisecond
     updateTray(tray, trayWindow.webContents, ms);
     intervalObj = setInterval(()=>{
         ms -= 1000
