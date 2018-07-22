@@ -155,6 +155,7 @@ const showTrayWindow = () => {
 
 
 ipcMain.on('asynchronous-message', (event, arg) => {
+    min = arg
     startTimer(arg, 0)
     trayWindow.hide();
 })
@@ -162,7 +163,8 @@ ipcMain.on('asynchronous-message', (event, arg) => {
 
 var appendRetrospect = function(retrospect) {
     let retroPath = path.join(homedir+ '/Desktop/retrospect.txt')
-    fs.appendFile(retroPath, retrospect + '\n', (err)=>{
+    let history = min + ' : ' + retrospect
+    fs.appendFile(retroPath, history + '\n', (err)=>{
         if(err){
             console.log(err)
             throw err
