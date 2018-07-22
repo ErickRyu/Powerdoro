@@ -10,6 +10,7 @@ const updateTray = require('./updateTray');
 const calcTrayWindowXy = require('./calcTrayWindowXy');
 const AutoLaunch = require('auto-launch');
 
+const ONE_MILLISEC = 1000;
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 
@@ -74,17 +75,17 @@ function stopTimer(){
 
 
 function startTimer(min, sec){
-    let ms = ((min * 60) + sec) * 1000
-    ms = Math.ceil(ms / 1000) * 1000; // Round up by one millisecond
+    let ms = ((min * 60) + sec) * ONE_MILLISEC
+    ms = Math.ceil(ms / ONE_MILLISEC) * ONE_MILLISEC; // Round up by one millisecond
     updateTray(tray, trayWindow.webContents, ms);
     intervalObj = setInterval(()=>{
-        ms -= 1000
+        ms -= ONE_MILLISEC
         updateTray(tray, trayWindow.webContents, ms);
         if(ms <= 0){ // Todo: Refactoring duplicated stop timer action
           stopTimer()
         }
 
-    }, 1000)
+    }, ONE_MILLISEC)
 }
 
 
