@@ -185,9 +185,8 @@ ipcMain.on('retrospect-message', (event, arg) => {
 
 
 ipcMain.on('stop-message', (event, arg) => {
-    trayWindow.webContents.send('stoped-timer', 'stop')
-    clearTimeout(intervalObj)
-    tray.setTitle( '00:00' )
+  stopTimer()
+  tray.setTitle( '00:00' )
 })
 
 
