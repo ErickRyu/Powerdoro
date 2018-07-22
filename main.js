@@ -160,9 +160,9 @@ ipcMain.on('asynchronous-message', (event, arg) => {
 })
 
 
-ipcMain.on('retrospect-message', (event, arg) => {
+var appendRetrospect = function(retrospect) {
     let retroPath = path.join(homedir+ '/Desktop/retrospect.txt')
-    fs.appendFile(retroPath, arg + '\n', (err)=>{
+    fs.appendFile(retroPath, retrospect + '\n', (err)=>{
         if(err){
             console.log(err)
             throw err
@@ -170,7 +170,10 @@ ipcMain.on('retrospect-message', (event, arg) => {
     })
     mainWindow.setClosable(true)
     mainWindow.close()
+}
 
+ipcMain.on('retrospect-message', (event, arg) => {
+  appendRetrospect(arg)
 })
 
 
