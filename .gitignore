@@ -84,3 +84,5 @@ retrospect.txt
 
 # Visual Studio Code
 .vscode/
+
+dist/
