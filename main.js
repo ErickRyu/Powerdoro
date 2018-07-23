@@ -9,6 +9,7 @@ const homedir = require('os').homedir();
 const updateTray = require('./updateTray');
 const calcTrayWindowXy = require('./calcTrayWindowXy');
 const AutoLaunch = require('auto-launch');
+const moment = require('moment');
 
 const ONE_MILLISEC = 1000;
 // Keep a global reference of the window object, if you don't, the window will
@@ -169,7 +170,11 @@ ipcMain.on('asynchronous-message', (event, arg) => {
 
 
 var appendRetrospect = function(retrospect) {
-    let retroPath = path.join(homedir+ '/Desktop/retrospect.txt')
+    let retroDirPath = path.join(homedir + '/Desktop/retrospect/')
+    if(!fs.existsSync(retroDirPath)){
+      fs.mkdir(retroDirPath)
+    }
+    let retroPath = path.join(retroDirPath + moment().format('YYYY_MM_DD') + '.txt') //Todo: Refacor with es5 syntax
     let history = min + ' : ' + retrospect
     fs.appendFile(retroPath, history + '\n', (err)=>{
         if(err){
