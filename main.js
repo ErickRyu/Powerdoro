@@ -2,7 +2,6 @@
 
 const electron = require('electron')
 const {app, BrowserWindow, Tray, ipcMain, globalShortcut} = require('electron')
-const getPrettyTime = require('./getPrettyTime');
 const fs = require('fs')
 const path = require('path');
 const homedir = require('os').homedir();
@@ -16,7 +15,6 @@ const ONE_MILLISEC = 1000;
 // be closed automatically when the JavaScript object is garbage collected.
 
 let mainWindow, tray, trayWindow = null
-let min, sec;
 let intervalObj
 
 var AutoLauncher = new AutoLaunch({
