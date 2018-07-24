@@ -1,7 +1,7 @@
 'use strict';
 
 const electron = require('electron')
-const {app, BrowserWindow, Tray, ipcMain, globalShortcut} = require('electron')
+const {app, BrowserWindow, Tray, ipcMain} = require('electron')
 const fs = require('fs')
 const path = require('path');
 const homedir = require('os').homedir();
