@@ -11,7 +11,7 @@
   },
   "scripts": {
     "start": "electron .",
-    "test": "mocha",
+    "test": "mocha --colors",
     "pack": "electron-builder --dir",
     "dist": "electron-builder"
   },

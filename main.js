@@ -8,7 +8,9 @@ const homedir = require('os').homedir();
 const updateTray = require('./updateTray');
 const calcTrayWindowXy = require('./calcTrayWindowXy');
 const AutoLaunch = require('auto-launch');
+const moment = require('moment');
 
+const ONE_MILLISEC = 1000;
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 
@@ -64,19 +66,25 @@ function createBlockConcentrationWindow () {
 }
 
 
+function stopTimer(){
+  trayWindow.webContents.send('stoped-timer', 'stop')
+  clearTimeout(intervalObj)
+  createBlockConcentrationWindow()
+}
+
+
 function startTimer(min, sec){
-    let ms = ((min * 60) + sec) * 1000
+    let ms = ((min * 60) + sec) * ONE_MILLISEC
+    ms = Math.ceil(ms / ONE_MILLISEC) * ONE_MILLISEC; // Round up by one millisecond
     updateTray(tray, trayWindow.webContents, ms);
     intervalObj = setInterval(()=>{
-        ms -= 1000
+        ms -= ONE_MILLISEC
         updateTray(tray, trayWindow.webContents, ms);
         if(ms <= 0){ // Todo: Refactoring duplicated stop timer action
-            trayWindow.webContents.send('stoped-timer', 'stop')
-            clearTimeout(intervalObj)
-            createBlockConcentrationWindow()
+          stopTimer()
         }
 
-    }, 1000)
+    }, ONE_MILLISEC)
 }
 
 
@@ -153,14 +161,20 @@ const showTrayWindow = () => {
 
 
 ipcMain.on('asynchronous-message', (event, arg) => {
+    min = arg
     startTimer(arg, 0)
     trayWindow.hide();
 })
 
 
-ipcMain.on('retrospect-message', (event, arg) => {
-    let retroPath = path.join(homedir+ '/Desktop/retrospect.txt')
-    fs.appendFile(retroPath, arg + '\n', (err)=>{
+var appendRetrospect = function(retrospect) {
+    let retroDirPath = path.join(homedir + '/Desktop/retrospect/')
+    if(!fs.existsSync(retroDirPath)){
+      fs.mkdir(retroDirPath)
+    }
+    let retroPath = path.join(retroDirPath + moment().format('YYYY_MM_DD') + '.txt') //Todo: Refacor with es5 syntax
+    let history = min + ' : ' + retrospect
+    fs.appendFile(retroPath, history + '\n', (err)=>{
         if(err){
             console.log(err)
             throw err
@@ -168,14 +182,16 @@ ipcMain.on('retrospect-message', (event, arg) => {
     })
     mainWindow.setClosable(true)
     mainWindow.close()
+}
 
+ipcMain.on('retrospect-message', (event, arg) => {
+  appendRetrospect(arg)
 })
 
 
 ipcMain.on('stop-message', (event, arg) => {
-    trayWindow.webContents.send('stoped-timer', 'stop')
-    clearTimeout(intervalObj)
-    tray.setTitle( '00:00' )
+  stopTimer()
+  tray.setTitle( '00:00' )
 })
 
 
