@@ -15,7 +15,7 @@ const ONE_MILLISEC = 1000;
 // be closed automatically when the JavaScript object is garbage collected.
 
 let mainWindow, tray, trayWindow = null
-let min, sec;
+let min;
 let intervalObj
 
 var AutoLauncher = new AutoLaunch({
