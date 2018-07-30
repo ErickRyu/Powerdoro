@@ -16,6 +16,7 @@ const ONE_MILLISEC = 1000;
 
 let mainWindow, tray, trayWindow = null
 let intervalObj
+let min
 
 var AutoLauncher = new AutoLaunch({
     name: 'powerdoro',
