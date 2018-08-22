@@ -19,7 +19,7 @@ $ npm start
 ```
 
 ### Option 2. pkg 
-[Download pkg](https://drive.google.com/open?id=1bz2Zs7MnAzgajKxF039KFqGFI02hVcJ3)
+[Download pkg](https://drive.google.com/drive/folders/1yGCQRAMzCLOV0-r4-fp4iaba9AvK9jDc?usp=sharing)
 
 ## Usage
 ### Click tray, enter time and start
