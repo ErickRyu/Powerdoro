@@ -17,6 +17,7 @@ const ONE_MILLISEC = 1000;
 let mainWindow, tray, trayWindow = null
 let intervalObj
 let min
+let startedTime, stopedTime;
 
 var AutoLauncher = new AutoLaunch({
     name: 'powerdoro',
@@ -68,6 +69,7 @@ function createBlockConcentrationWindow () {
 
 
 function stopTimer(){
+  stopedTime = moment().format('HH:mm');
   trayWindow.webContents.send('stoped-timer', 'stop')
   clearTimeout(intervalObj)
   createBlockConcentrationWindow()
@@ -75,6 +77,7 @@ function stopTimer(){
 
 
 function startTimer(min, sec){
+    startedTime = moment().format('HH:mm');
     let ms = ((min * 60) + sec) * ONE_MILLISEC
     ms = Math.ceil(ms / ONE_MILLISEC) * ONE_MILLISEC; // Round up by one millisecond
     updateTray(tray, trayWindow.webContents, ms);
@@ -83,7 +86,7 @@ function startTimer(min, sec){
         updateTray(tray, trayWindow.webContents, ms);
         if(ms <= 0){ // Todo: Refactoring duplicated stop timer action
           stopTimer()
-        }
+       }
 
     }, ONE_MILLISEC)
 }
@@ -174,7 +177,7 @@ var appendRetrospect = function(retrospect) {
       fs.mkdir(retroDirPath)
     }
     let retroPath = path.join(retroDirPath + moment().format('YYYY_MM_DD') + '.txt') //Todo: Refacor with es5 syntax
-    let history = min + ' : ' + retrospect
+    let history = `[${startedTime}-${stopedTime}] [${min}] : ${retrospect}`
     fs.appendFile(retroPath, history + '\n', (err)=>{
         if(err){
             console.log(err)
