@@ -77,10 +77,16 @@ function stopTimer(){
 }
 
 
-function startTimer(min, sec){
-    startedTime = moment().format('HH:mm');
+function getMilliSecFor(min, sec){
     let ms = ((min * 60) + sec) * ONE_MILLISEC
     ms = Math.ceil(ms / ONE_MILLISEC) * ONE_MILLISEC; // Round up by one millisecond
+    return ms
+}
+
+
+function startTimer(min, sec){
+    startedTime = moment().format('HH:mm');
+    let ms = getMilliSecFor(min, sec)
     updateTray(tray, trayWindow.webContents, ms);
     intervalObj = setInterval(()=>{
         ms -= ONE_MILLISEC
@@ -179,8 +185,7 @@ var appendRetrospect = function(retrospect) {
     }
     let retroPath = path.join(retroDirPath + moment().format('YYYY_MM_DD') + '.txt') //Todo: Refacor with es5 syntax
     
-    let ms = ((min * 60) + 0 ) * ONE_MILLISEC
-    ms = Math.ceil(ms / ONE_MILLISEC) * ONE_MILLISEC; // Round up by one millisecond
+    let ms = getMilliSecFor(min, 0)
     let prettyTime = getPrettyTime(ms)
     
     let history = `[${startedTime}-${stopedTime}] [${prettyTime}] : ${retrospect}`
