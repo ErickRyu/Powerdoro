@@ -9,6 +9,7 @@ const updateTray = require('./updateTray');
 const calcTrayWindowXy = require('./calcTrayWindowXy');
 const AutoLaunch = require('auto-launch');
 const moment = require('moment');
+const getPrettyTime = require('./getPrettyTime');
 
 const ONE_MILLISEC = 1000;
 // Keep a global reference of the window object, if you don't, the window will
@@ -177,7 +178,12 @@ var appendRetrospect = function(retrospect) {
       fs.mkdir(retroDirPath)
     }
     let retroPath = path.join(retroDirPath + moment().format('YYYY_MM_DD') + '.txt') //Todo: Refacor with es5 syntax
-    let history = `[${startedTime}-${stopedTime}] [${min}] : ${retrospect}`
+    
+    let ms = ((min * 60) + 0 ) * ONE_MILLISEC
+    ms = Math.ceil(ms / ONE_MILLISEC) * ONE_MILLISEC; // Round up by one millisecond
+    let prettyTime = getPrettyTime(ms)
+    
+    let history = `[${startedTime}-${stopedTime}] [${prettyTime}] : ${retrospect}`
     fs.appendFile(retroPath, history + '\n', (err)=>{
         if(err){
             console.log(err)
