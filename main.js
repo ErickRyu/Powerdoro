@@ -15,7 +15,7 @@ const ONE_MILLISEC = 1000;
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 
-let mainWindow, tray, trayWindow = null
+let blockwindow, tray, trayWindow = null
 let intervalObj
 let min
 let startedTime, stopedTime;
@@ -55,15 +55,15 @@ function createBlockConcentrationWindow () {
     alwaysOnTop: true,
     movable: false,
   }
-  mainWindow = new BrowserWindow(setting)
-  let mainWindowPath = path.join(__dirname, 'block-window.html')
-  mainWindow.loadFile(mainWindowPath)
+  blockwindow = new BrowserWindow(setting)
+  let blockwindowPath = path.join(__dirname, 'block-window.html')
+  blockwindow.loadFile(blockwindowPath)
 
-  mainWindow.setClosable(false);
+  blockwindow.setClosable(false);
 
   // Emitted when the window is closed.
-  mainWindow.on('closed', function () {
-    mainWindow = null
+  blockwindow.on('closed', function () {
+    blockwindow = null
   })
 }
 
@@ -187,8 +187,8 @@ var appendRetrospect = function(retrospect) {
       throw err
     }
   })
-  mainWindow.setClosable(true)
-  mainWindow.close()
+  blockwindow.setClosable(true)
+  blockwindow.close()
 }
 
 
@@ -235,7 +235,7 @@ app.on('window-all-closed', function () {
 app.on('activate', function () {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (mainWindow === null) {
+  if (blockwindow === null) {
     createBlockConcentrationWindow()
   }
 })
