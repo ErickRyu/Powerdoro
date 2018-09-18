@@ -37,7 +37,6 @@ function getExternalDisplayThreashold(){
             break
         }
     }
-
     return externalDisplay?  {x: externalDisplay.bounds.x, y: externalDisplay.bounds.y} : {x: 0, y:0}
 }
 
@@ -57,7 +56,7 @@ function createBlockConcentrationWindow () {
         movable: false,
     }
     mainWindow = new BrowserWindow(setting)
-    let mainWindowPath = path.join(__dirname, 'index.html')
+    let mainWindowPath = path.join(__dirname, 'block-window.html')
     mainWindow.loadFile(mainWindowPath)
 
     mainWindow.setClosable(false);
@@ -136,7 +135,7 @@ const createTrayWindow = () => {
         closable: false,
         'node-integration': false
     })
-    // This is where the index.html file is loaded into the window
+    
     trayWindow.loadURL('file://' + __dirname + '/menu.html');
 
     // Hide the window when it loses focus
