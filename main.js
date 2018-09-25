@@ -56,7 +56,7 @@ function createBlockConcentrationWindow () {
     movable: false,
   }
   blockwindow = new BrowserWindow(setting)
-  let blockwindowPath = path.join(__dirname, 'block-window.html')
+  let blockwindowPath = path.join(__dirname, 'view/block-window.html')
   blockwindow.loadFile(blockwindowPath)
 
   blockwindow.setClosable(false);
