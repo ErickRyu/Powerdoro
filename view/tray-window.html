@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+    <head>
+<style>
+.container{
+    width: 200px;
+    height: 140px;
+    background-color: black;
+        border-radius: 10px;
+}
+#time{
+    margin: 20px;
+    background-color: black;
+    color: white;
+    font-size: 20px;
+    border: 0px;
+    outline-width: 0px;
+    width: 100px;
+}
+.submit_btn{
+    font-size: 20px;
+    background-color: rgba(0,0,0,0);
+    color: white;
+    outline-width: 0px;
+    border: 0px;
+}
+.btn{
+    font-size: 16px;
+    background-color: rgba(0,0,0,0);
+    color: white;
+    outline-width: 0px;
+    border: 0px;
+    margin-left: 147px;
+}
+</style>
+<script src="../tray-window-renderer.js"></script>
+    </head>
+    <body>
+        <div class="container" name="timeform"> 
+            <form action='post' onsubmit="sendTime(event)">
+                <input type="text" id="time" autofocus placeholder="Time">
+               <button type="submit" id="submit_btn" class="submit_btn"><img
+                 src="../res/img/play-button.svg" id="btn_img" width="24" height="24"></button>
+            </form>
+            <button class="btn"  onclick="stopTimer()" ><img src="../res/img/stop.svg" id="btn_img" width="22" height="22"></button>
+            <button class="btn"  onclick="exitApp()" ><img src="../res/img/minus-circle.svg" id="btn_img" width="22" height="22"></button>
+
+        </div>
+    </body>
+</html>
