@@ -136,7 +136,7 @@ const createTrayWindow = () => {
     'node-integration': false
   })
 
-  trayWindow.loadURL('file://' + __dirname + '/tray-window.html');
+  trayWindow.loadURL('file://' + __dirname + '/view/tray-window.html');
 
   // Hide the window when it loses focus
   trayWindow.on('blur', () => {
