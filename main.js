@@ -15,12 +15,12 @@ const ONE_MILLISEC = 1000;
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 
-let blockwindow, tray, trayWindow = null
-let intervalObj
-let min
+let blockwindow, tray, trayWindow = null;
+let intervalObj;
+let min;
 let startedTime, stopedTime;
 
-var AutoLauncher = new AutoLaunch({
+const AutoLauncher = new AutoLaunch({
   name: 'powerdoro',
   path: '/Applications/powerdoro.app',
 })
@@ -28,9 +28,9 @@ AutoLauncher.enable();
 
 
 function getExternalDisplayThreashold(){
-  var electronScreen = electron.screen
-  var displays = electronScreen.getAllDisplays()
-  var externalDisplay = null
+  const electronScreen = electron.screen;
+  const displays = electronScreen.getAllDisplays();
+  let externalDisplay = null;
   for (var i in displays) {
     if (displays[i].bounds.x != 0 || displays[i].bounds.y != 0) {
       externalDisplay = displays[i]
