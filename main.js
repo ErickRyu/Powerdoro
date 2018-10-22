@@ -42,10 +42,10 @@ function getExternalDisplayThreashold(){
 
 
 function createBlockConcentrationWindow () {
-  let displayThreashold = getExternalDisplayThreashold()
+  const displayThreashold = getExternalDisplayThreashold();
 
-  let xThreshold = displayThreashold.x
-  let yThreshold = displayThreashold.y
+  let xThreshold = displayThreashold.x;
+  let yThreshold = displayThreashold.y;
 
   let setting = {
     x: xThreshold,
@@ -55,37 +55,37 @@ function createBlockConcentrationWindow () {
     alwaysOnTop: true,
     movable: false,
   }
-  blockwindow = new BrowserWindow(setting)
-  let blockwindowPath = path.join(__dirname, 'view/block-window.html')
-  blockwindow.loadFile(blockwindowPath)
+  blockwindow = new BrowserWindow(setting);
+  let blockwindowPath = path.join(__dirname, 'view/block-window.html');
+  blockwindow.loadFile(blockwindowPath);
 
   blockwindow.setClosable(false);
 
   // Emitted when the window is closed.
   blockwindow.on('closed', function () {
-    blockwindow = null
+    blockwindow = null;
   })
 }
 
 
 function stopTimer(){
   stopedTime = moment().format('HH:mm');
-  trayWindow.webContents.send('stoped-timer', 'stop')
-  clearTimeout(intervalObj)
-  createBlockConcentrationWindow()
+  trayWindow.webContents.send('stoped-timer', 'stop');
+  clearTimeout(intervalObj);
+  createBlockConcentrationWindow();
 }
 
 
 function getMilliSecFor(min, sec){
-  let ms = ((min * 60) + sec) * ONE_MILLISEC
+  let ms = ((min * 60) + sec) * ONE_MILLISEC;
   ms = Math.ceil(ms / ONE_MILLISEC) * ONE_MILLISEC; // Round up by one millisecond
-  return ms
+  return ms;
 }
 
 
 function startTimer(min, sec){
   startedTime = moment().format('HH:mm');
-  let ms = getMilliSecFor(min, sec)
+  let ms = getMilliSecFor(min, sec);
   updateTray(tray, trayWindow.webContents, ms);
   intervalObj = setInterval(()=>{
     ms -= ONE_MILLISEC
