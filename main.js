@@ -54,6 +54,10 @@ function createBlockConcentrationWindow () {
     frame:false,
     alwaysOnTop: true,
     movable: false,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
   }
   blockwindow = new BrowserWindow(setting)
   let blockwindowPath = path.join(__dirname, 'view/block-window.html')
