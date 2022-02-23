@@ -138,6 +138,8 @@ const createTrayWindow = () => {
 
   trayWindow.loadURL('file://' + __dirname + '/view/tray-window.html');
 
+  trayWindow.setVisibleOnAllWorkspaces(true)
+
   // Hide the window when it loses focus
   trayWindow.on('blur', () => {
     if (!trayWindow.webContents.isDevToolsOpened()) {
