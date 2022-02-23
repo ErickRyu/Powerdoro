@@ -133,7 +133,10 @@ const createTrayWindow = () => {
     transparent: true,
     movable: false,
     closable: false,
-    'node-integration': false
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
   })
 
   trayWindow.loadURL('file://' + __dirname + '/view/tray-window.html');
