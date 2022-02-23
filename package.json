@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "auto-launch": "^5.0.5",
+    "electron-traywindow-positioner": "^1.1.1",
     "mocha": "^9.2.1",
     "moment": "^2.22.2",
     "moment-duration-format": "^2.2.2"

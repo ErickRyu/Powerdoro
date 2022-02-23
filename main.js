@@ -6,10 +6,11 @@ const fs = require('fs')
 const path = require('path');
 const homedir = require('os').homedir();
 const updateTray = require('./updateTray');
-const calcTrayWindowXy = require('./calcTrayWindowXy');
 const AutoLaunch = require('auto-launch');
 const moment = require('moment');
 const getPrettyTime = require('./getPrettyTime');
+const positioner = require('electron-traywindow-positioner');
+
 
 const ONE_MILLISEC = 1000;
 // Keep a global reference of the window object, if you don't, the window will
@@ -110,7 +111,6 @@ const createTray = () => {
   })
 }
 
-
 const platforms = {
   darwin: {
     calcRelativeY: (trayBounds) => Math.round(trayBounds.y + trayBounds.height + 3),
@@ -166,14 +166,7 @@ const toggleWindow = () => {
 
 
 const showTrayWindow = () => {
-  const position = calcTrayWindowXy(
-    platforms[process.platform].calcRelativeY(tray.getBounds()),
-    tray.getBounds(),
-    trayWindow.getBounds().width,
-    getExternalDisplayThreashold().y
-  );
-
-  trayWindow.setPosition(position.x, position.y, false)
+  positioner.position(trayWindow, tray.getBounds());
   trayWindow.show()
   trayWindow.focus()
 }
