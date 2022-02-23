@@ -1,7 +1,7 @@
 'use strict';
 
 const electron = require('electron')
-const {app, BrowserWindow, Tray, ipcMain} = require('electron')
+const {app, BrowserWindow, Tray, ipcMain, globalShortcut} = require('electron')
 const fs = require('fs')
 const path = require('path');
 const homedir = require('os').homedir();
@@ -196,6 +196,16 @@ var appendRetrospect = function(retrospect) {
   blockwindow.close()
 }
 
+const registerGlobalShortcuts = () => {
+  const ret = globalShortcut.register('CommandOrControl+Shift+P', () => {
+    toggleWindow()
+  })
+
+  if (!ret) {
+    console.log('registration failed')
+  }
+}
+
 
 ipcMain.on('asynchronous-message', (event, arg) => {
   min = arg
@@ -217,6 +227,7 @@ ipcMain.on('stop-message', (event, arg) => {
 
 ipcMain.on('exit-app', (event, arg) =>{
   app.exit()
+  globalShortcut.unregisterAll()
 })
 
 
@@ -226,6 +237,7 @@ platforms[process.platform].hide(app);
 app.on('ready', ()=>{
   createTray()
   createTrayWindow()
+  registerGlobalShortcuts()
 })
 
 
