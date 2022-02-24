@@ -1,15 +1,16 @@
 'use strict';
 
 const electron = require('electron')
-const {app, BrowserWindow, Tray, ipcMain} = require('electron')
+const {app, BrowserWindow, Tray, ipcMain, globalShortcut} = require('electron')
 const fs = require('fs')
 const path = require('path');
 const homedir = require('os').homedir();
 const updateTray = require('./updateTray');
-const calcTrayWindowXy = require('./calcTrayWindowXy');
 const AutoLaunch = require('auto-launch');
 const moment = require('moment');
 const getPrettyTime = require('./getPrettyTime');
+const positioner = require('electron-traywindow-positioner');
+
 
 const ONE_MILLISEC = 1000;
 // Keep a global reference of the window object, if you don't, the window will
@@ -54,6 +55,10 @@ function createBlockConcentrationWindow () {
     frame:false,
     alwaysOnTop: true,
     movable: false,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
   }
   blockwindow = new BrowserWindow(setting)
   let blockwindowPath = path.join(__dirname, 'view/block-window.html')
@@ -106,7 +111,6 @@ const createTray = () => {
   })
 }
 
-
 const platforms = {
   darwin: {
     calcRelativeY: (trayBounds) => Math.round(trayBounds.y + trayBounds.height + 3),
@@ -133,10 +137,15 @@ const createTrayWindow = () => {
     transparent: true,
     movable: false,
     closable: false,
-    'node-integration': false
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
   })
 
   trayWindow.loadURL('file://' + __dirname + '/view/tray-window.html');
+
+  trayWindow.setVisibleOnAllWorkspaces(true)
 
   // Hide the window when it loses focus
   trayWindow.on('blur', () => {
@@ -157,14 +166,7 @@ const toggleWindow = () => {
 
 
 const showTrayWindow = () => {
-  const position = calcTrayWindowXy(
-    platforms[process.platform].calcRelativeY(tray.getBounds()),
-    tray.getBounds(),
-    trayWindow.getBounds().width,
-    getExternalDisplayThreashold().y
-  );
-
-  trayWindow.setPosition(position.x, position.y, false)
+  positioner.position(trayWindow, tray.getBounds());
   trayWindow.show()
   trayWindow.focus()
 }
@@ -191,6 +193,16 @@ var appendRetrospect = function(retrospect) {
   blockwindow.close()
 }
 
+const registerGlobalShortcuts = () => {
+  const ret = globalShortcut.register('CommandOrControl+Shift+P', () => {
+    toggleWindow()
+  })
+
+  if (!ret) {
+    console.log('registration failed')
+  }
+}
+
 
 ipcMain.on('asynchronous-message', (event, arg) => {
   min = arg
@@ -212,6 +224,7 @@ ipcMain.on('stop-message', (event, arg) => {
 
 ipcMain.on('exit-app', (event, arg) =>{
   app.exit()
+  globalShortcut.unregisterAll()
 })
 
 
@@ -221,6 +234,7 @@ platforms[process.platform].hide(app);
 app.on('ready', ()=>{
   createTray()
   createTrayWindow()
+  registerGlobalShortcuts()
 })
 
 
