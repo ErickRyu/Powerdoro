@@ -16,12 +16,12 @@ const ONE_MILLISEC = 1000;
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 
-let blockwindow, tray, trayWindow = null
-let intervalObj
-let min
+let blockwindow, tray, trayWindow = null;
+let intervalObj;
+let min;
 let startedTime, stopedTime;
 
-var AutoLauncher = new AutoLaunch({
+const AutoLauncher = new AutoLaunch({
   name: 'powerdoro',
   path: '/Applications/powerdoro.app',
 })
@@ -29,9 +29,9 @@ AutoLauncher.enable();
 
 
 function getExternalDisplayThreashold(){
-  var electronScreen = electron.screen
-  var displays = electronScreen.getAllDisplays()
-  var externalDisplay = null
+  const electronScreen = electron.screen;
+  const displays = electronScreen.getAllDisplays();
+  let externalDisplay = null;
   for (var i in displays) {
     if (displays[i].bounds.x != 0 || displays[i].bounds.y != 0) {
       externalDisplay = displays[i]
@@ -43,10 +43,10 @@ function getExternalDisplayThreashold(){
 
 
 function createBlockConcentrationWindow () {
-  let displayThreashold = getExternalDisplayThreashold()
+  const displayThreashold = getExternalDisplayThreashold();
 
-  let xThreshold = displayThreashold.x
-  let yThreshold = displayThreashold.y
+  let xThreshold = displayThreashold.x;
+  let yThreshold = displayThreashold.y;
 
   let setting = {
     x: xThreshold,
@@ -60,37 +60,37 @@ function createBlockConcentrationWindow () {
       contextIsolation: false,
     },
   }
-  blockwindow = new BrowserWindow(setting)
-  let blockwindowPath = path.join(__dirname, 'view/block-window.html')
-  blockwindow.loadFile(blockwindowPath)
+  blockwindow = new BrowserWindow(setting);
+  let blockwindowPath = path.join(__dirname, 'view/block-window.html');
+  blockwindow.loadFile(blockwindowPath);
 
   blockwindow.setClosable(false);
 
   // Emitted when the window is closed.
   blockwindow.on('closed', function () {
-    blockwindow = null
+    blockwindow = null;
   })
 }
 
 
 function stopTimer(){
   stopedTime = moment().format('HH:mm');
-  trayWindow.webContents.send('stoped-timer', 'stop')
-  clearTimeout(intervalObj)
-  createBlockConcentrationWindow()
+  trayWindow.webContents.send('stoped-timer', 'stop');
+  clearTimeout(intervalObj);
+  createBlockConcentrationWindow();
 }
 
 
 function getMilliSecFor(min, sec){
-  let ms = ((min * 60) + sec) * ONE_MILLISEC
+  let ms = ((min * 60) + sec) * ONE_MILLISEC;
   ms = Math.ceil(ms / ONE_MILLISEC) * ONE_MILLISEC; // Round up by one millisecond
-  return ms
+  return ms;
 }
 
 
 function startTimer(min, sec){
   startedTime = moment().format('HH:mm');
-  let ms = getMilliSecFor(min, sec)
+  let ms = getMilliSecFor(min, sec);
   updateTray(tray, trayWindow.webContents, ms);
   intervalObj = setInterval(()=>{
     ms -= ONE_MILLISEC
