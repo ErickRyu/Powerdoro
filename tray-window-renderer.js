@@ -64,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
   })
 
   function setTimerRunning(running) {
+    timeInput.type = running ? 'text' : 'number'
     timeInput.disabled = running
     submitBtn.disabled = running
     presetBtns.forEach((btn) => { btn.disabled = running })
