@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (settings.retrospectDir) {
         dirDisplay.textContent = settings.retrospectDir;
       } else {
-        dirDisplay.textContent = '~/Desktop/retrospect/ (default)';
+        dirDisplay.textContent = 'Documents/Powerdoro/ (default)';
       }
     });
   }

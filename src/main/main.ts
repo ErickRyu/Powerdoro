@@ -2,12 +2,11 @@ import { app, BrowserWindow, Tray, ipcMain, globalShortcut, screen, Menu, dialog
 import * as fs from 'fs';
 import * as path from 'path';
 import { updateTray } from './updateTray';
-import AutoLaunch from 'auto-launch';
 import { getPrettyTime } from '../utils/getPrettyTime';
 import * as positioner from 'electron-traywindow-positioner';
 import { IPC_CHANNELS } from '../ipc/channels';
 import { validateTimerInput, sanitizeRetrospectText, isValidDatePath, validateAccelerator, validateTimerPresets } from '../ipc/validators';
-import { getSettings, saveSettings, getRetrospectDir } from '../settings/store';
+import { getSettings, saveSettings, getRetrospectDir, initDefaultRetrospectDir } from '../settings/store';
 import { AppSettings } from '../settings/types';
 
 function formatTime(date: Date): string {
@@ -144,11 +143,22 @@ const createTrayWindow = () => {
       trayWindow.hide();
     }
   });
+  trayWindow.webContents.on('before-input-event', (_event, input) => {
+    if (input.key === 'Escape' && input.type === 'keyDown') {
+      trayWindow.hide();
+      if (process.platform === 'darwin') {
+        app.hide();
+      }
+    }
+  });
 };
 
 const toggleWindow = () => {
   if (trayWindow.isVisible()) {
     trayWindow.hide();
+    if (process.platform === 'darwin') {
+      app.hide();
+    }
   } else {
     showTrayWindow();
   }
@@ -328,15 +338,7 @@ ipcMain.handle(IPC_CHANNELS.SETTINGS_SAVE, async (_event, partial: Partial<AppSe
   }
 
   if (partial.autoLaunch !== undefined) {
-    const autoLauncher = new AutoLaunch({
-      name: 'powerdoro',
-      path: app.getPath('exe'),
-    });
-    if (partial.autoLaunch) {
-      autoLauncher.enable();
-    } else {
-      autoLauncher.disable();
-    }
+    app.setLoginItemSettings({ openAtLogin: partial.autoLaunch });
   }
 
   broadcastSettings(updated);
@@ -357,17 +359,12 @@ ipcMain.handle(IPC_CHANNELS.SETTINGS_SELECT_DIR, async () => {
 platforms[process.platform].hide(app);
 
 app.on('ready', () => {
+  // Initialize sandbox-compatible default retrospect directory
+  initDefaultRetrospectDir(path.join(app.getPath('documents'), 'Powerdoro'));
+
   const settings = getSettings();
 
-  const autoLauncher = new AutoLaunch({
-    name: 'powerdoro',
-    path: app.getPath('exe'),
-  });
-  if (settings.autoLaunch) {
-    autoLauncher.enable();
-  } else {
-    autoLauncher.disable();
-  }
+  app.setLoginItemSettings({ openAtLogin: settings.autoLaunch });
 
   createTray();
   createTrayWindow();

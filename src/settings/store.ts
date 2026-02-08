@@ -1,7 +1,7 @@
 import Store from 'electron-store';
-import * as path from 'path';
-import * as os from 'os';
 import { AppSettings, DEFAULT_SETTINGS } from './types';
+
+let defaultRetrospectDir = '';
 
 const schema = {
   hotkey: {
@@ -48,10 +48,14 @@ export function saveSettings(partial: Partial<AppSettings>): AppSettings {
   return getSettings();
 }
 
+export function initDefaultRetrospectDir(dir: string): void {
+  defaultRetrospectDir = dir;
+}
+
 export function getRetrospectDir(): string {
   const dir = store.get('retrospectDir');
   if (dir && dir.length > 0) {
     return dir;
   }
-  return path.join(os.homedir(), 'Desktop', 'retrospect');
+  return defaultRetrospectDir;
 }

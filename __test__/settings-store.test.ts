@@ -9,10 +9,8 @@ jest.mock('electron-store', () => {
   }));
 });
 
-import { getSettings, saveSettings, getRetrospectDir } from '../src/settings/store';
+import { getSettings, saveSettings, getRetrospectDir, initDefaultRetrospectDir } from '../src/settings/store';
 import { DEFAULT_SETTINGS } from '../src/settings/types';
-import * as path from 'path';
-import * as os from 'os';
 
 describe('settings store', () => {
   beforeEach(() => {
@@ -91,11 +89,12 @@ describe('settings store', () => {
       expect(dir).toBe('/custom/retrospect');
     });
 
-    it('should return default path when retrospectDir is empty', () => {
+    it('should return initialized default path when retrospectDir is empty', () => {
+      initDefaultRetrospectDir('/Users/test/Documents/Powerdoro');
       mockGet.mockReturnValueOnce('');
 
       const dir = getRetrospectDir();
-      expect(dir).toBe(path.join(os.homedir(), 'Desktop', 'retrospect'));
+      expect(dir).toBe('/Users/test/Documents/Powerdoro');
     });
   });
 });
