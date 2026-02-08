@@ -14,6 +14,9 @@ contextBridge.exposeInMainWorld('powerdoro', {
   openSettings: () => {
     ipcRenderer.send(IPC_CHANNELS.SETTINGS_OPEN);
   },
+  openStats: () => {
+    ipcRenderer.send(IPC_CHANNELS.STATS_OPEN);
+  },
   onTimeUpdate: (callback: (time: string) => void) => {
     ipcRenderer.on(IPC_CHANNELS.TIMER_UPDATE, (_event, time: string) => {
       callback(time);

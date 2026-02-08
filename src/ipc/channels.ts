@@ -20,6 +20,10 @@ export const IPC_CHANNELS = {
   SETTINGS_OPEN: 'settings:open',             // send/on
   SETTINGS_SELECT_DIR: 'settings:select-dir', // invoke/handle
   SETTINGS_CHANGED: 'settings:changed',       // main -> renderer broadcast
+
+  // Statistics
+  STATS_GET: 'stats:get',                     // invoke/handle
+  STATS_OPEN: 'stats:open',                   // send/on
 } as const;
 
 export type IpcChannel = typeof IPC_CHANNELS[keyof typeof IPC_CHANNELS];

@@ -10,14 +10,18 @@
       "dist/**/*",
       "view/**/*",
       "res/**/*",
-      "settings-window-renderer.js"
+      "settings-window-renderer.js",
+      "stats-window-renderer.js",
+      "node_modules/chart.js/dist/chart.umd.js"
     ],
     "mac": {
       "category": "public.app-category.productivity",
       "target": [
         {
           "target": "dmg",
-          "arch": ["universal"]
+          "arch": [
+            "universal"
+          ]
         }
       ],
       "hardenedRuntime": true,
@@ -32,7 +36,9 @@
       "target": [
         {
           "target": "mas",
-          "arch": ["universal"]
+          "arch": [
+            "universal"
+          ]
         }
       ],
       "entitlements": "build/entitlements.mas.plist",
@@ -43,20 +49,29 @@
     "dmg": {
       "sign": false,
       "contents": [
-        { "x": 130, "y": 220 },
-        { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
       ]
     },
     "afterSign": "scripts/notarize.js"
   },
   "scripts": {
     "build": "tsc",
-    "start": "npm run build && electron .",
+    "rebuild:electron": "npx electron-rebuild -f -w better-sqlite3",
+    "start": "npm run rebuild:electron && npm run build && electron .",
     "test": "jest",
-    "pack": "npm run build && electron-builder --dir",
-    "dist": "npm run build && electron-builder",
-    "dist:dmg": "npm run build && electron-builder --mac dmg",
-    "dist:mas": "npm run build && electron-builder --mac mas"
+    "pack": "npm run rebuild:electron && npm run build && electron-builder --dir",
+    "dist": "npm run rebuild:electron && npm run build && electron-builder",
+    "dist:dmg": "npm run rebuild:electron && npm run build && electron-builder --mac dmg",
+    "dist:mas": "npm run rebuild:electron && npm run build && electron-builder --mac mas"
   },
   "repository": "",
   "keywords": [
@@ -70,6 +85,7 @@
   "license": "MIT",
   "devDependencies": {
     "@electron/notarize": "^2.5.0",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/jest": "^29.5.14",
     "electron": "^33.0.0",
     "electron-builder": "^25.1.0",
@@ -78,6 +94,8 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "better-sqlite3": "^12.6.2",
+    "chart.js": "^4.5.1",
     "electron-store": "^8.2.0",
     "electron-traywindow-positioner": "^1.1.1"
   }

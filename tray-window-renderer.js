@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const stopBtn = document.getElementById('stop-btn')
   const exitBtn = document.getElementById('exit-btn')
   const settingsBtn = document.getElementById('settings-btn')
+  const statsBtn = document.getElementById('stats-btn')
   const presetBtns = document.querySelectorAll('.preset-btn')
 
   function validateAndSend() {
@@ -44,6 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   settingsBtn.addEventListener('click', () => {
     window.powerdoro.openSettings()
+  })
+
+  statsBtn.addEventListener('click', () => {
+    window.powerdoro.openStats()
   })
 
   window.addEventListener('focus', () => {

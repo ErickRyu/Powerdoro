@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'">
+    <title>Powerdoro Statistics</title>
+    <link rel="stylesheet" href="styles/stats-window.css">
+  </head>
+  <body>
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+      <div class="card">
+        <div class="card-label">Today</div>
+        <div class="card-value" id="today-sessions">0 sessions</div>
+        <div class="card-sub" id="today-minutes">0 min total</div>
+        <div class="card-sub" id="today-avg">0 min avg</div>
+      </div>
+      <div class="card">
+        <div class="card-label">This Week</div>
+        <div class="card-value" id="week-sessions">0 sessions</div>
+        <div class="card-sub" id="week-minutes">0 min total</div>
+        <div class="card-sub" id="week-avg">0 min avg</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Streak</div>
+        <div class="card-value" id="current-streak">0 days</div>
+        <div class="card-sub" id="longest-streak">Longest: 0 days</div>
+      </div>
+    </div>
+
+    <!-- Daily Chart -->
+    <div class="chart-section">
+      <div class="chart-header">
+        <h2>Daily Focus</h2>
+        <div class="toggle-group">
+          <button class="toggle-btn active" data-days="7">7 days</button>
+          <button class="toggle-btn" data-days="30">30 days</button>
+        </div>
+      </div>
+      <canvas id="daily-chart"></canvas>
+    </div>
+
+    <!-- Hourly Chart -->
+    <div class="chart-section">
+      <div class="chart-header">
+        <h2>Time of Day Distribution</h2>
+      </div>
+      <canvas id="hourly-chart"></canvas>
+    </div>
+
+    <!-- Monthly Chart -->
+    <div class="chart-section">
+      <div class="chart-header">
+        <h2>Monthly Trends</h2>
+      </div>
+      <canvas id="monthly-chart"></canvas>
+    </div>
+
+    <script src="../node_modules/chart.js/dist/chart.umd.js"></script>
+    <script src="../stats-window-renderer.js"></script>
+  </body>
+</html>

@@ -8,6 +8,7 @@ import { IPC_CHANNELS } from '../ipc/channels';
 import { validateTimerInput, sanitizeRetrospectText, isValidDatePath, validateAccelerator, validateTimerPresets } from '../ipc/validators';
 import { getSettings, saveSettings, getRetrospectDir, initDefaultRetrospectDir } from '../settings/store';
 import { AppSettings } from '../settings/types';
+import { initDatabase, insertSession, getStats } from '../stats/database';
 
 function formatTime(date: Date): string {
   return date.toTimeString().slice(0, 5);
@@ -24,6 +25,7 @@ const ONE_MILLISEC = 1000;
 
 let blockwindow: BrowserWindow | null = null;
 let settingsWindow: BrowserWindow | null = null;
+let statsWindow: BrowserWindow | null = null;
 let tray: Tray;
 let trayWindow: BrowserWindow;
 let intervalObj: NodeJS.Timeout;
@@ -194,6 +196,21 @@ function appendRetrospect(retrospect: string): void {
       throw err;
     }
   });
+
+  // Save session to SQLite for statistics
+  try {
+    insertSession({
+      date: dateStr,
+      startTime: startedTime,
+      endTime: stopedTime,
+      durationMinutes: min,
+      retrospectText: retrospect,
+      createdAt: new Date().toISOString(),
+    });
+  } catch (err) {
+    console.error('Failed to save session to database:', err);
+  }
+
   if (blockwindow) {
     blockwindow.setClosable(true);
     blockwindow.close();
@@ -256,6 +273,30 @@ function createSettingsWindow() {
   });
 }
 
+function createStatsWindow() {
+  if (statsWindow) {
+    statsWindow.focus();
+    return;
+  }
+  statsWindow = new BrowserWindow({
+    width: 720,
+    height: 640,
+    frame: true,
+    resizable: true,
+    backgroundColor: '#1a1a1a',
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      sandbox: false,
+      preload: path.join(__dirname, '../preload/stats-preload.js'),
+    },
+  });
+  statsWindow.loadFile(path.join(__dirname, '../../view/stats-window.html'));
+  statsWindow.on('closed', () => {
+    statsWindow = null;
+  });
+}
+
 function broadcastSettings(settings: AppSettings) {
   const allWindows = BrowserWindow.getAllWindows();
   for (const win of allWindows) {
@@ -265,6 +306,7 @@ function broadcastSettings(settings: AppSettings) {
 
 function setupContextMenu() {
   const contextMenu = Menu.buildFromTemplate([
+    { label: 'Statistics', click: () => createStatsWindow() },
     { label: 'Settings', click: () => createSettingsWindow() },
     { type: 'separator' },
     { label: 'Quit Powerdoro', click: () => { globalShortcut.unregisterAll(); app.quit(); } },
@@ -308,6 +350,10 @@ ipcMain.on(IPC_CHANNELS.SETTINGS_OPEN, () => {
   createSettingsWindow();
 });
 
+ipcMain.on(IPC_CHANNELS.STATS_OPEN, () => {
+  createStatsWindow();
+});
+
 ipcMain.handle(IPC_CHANNELS.SETTINGS_GET, () => {
   return getSettings();
 });
@@ -348,6 +394,10 @@ ipcMain.handle(IPC_CHANNELS.SETTINGS_SAVE, async (_event, partial: Partial<AppSe
   return updated;
 });
 
+ipcMain.handle(IPC_CHANNELS.STATS_GET, () => {
+  return getStats();
+});
+
 ipcMain.handle(IPC_CHANNELS.SETTINGS_SELECT_DIR, async () => {
   const result = await dialog.showOpenDialog({
     properties: ['openDirectory'],
@@ -362,6 +412,10 @@ ipcMain.handle(IPC_CHANNELS.SETTINGS_SELECT_DIR, async () => {
 platforms[process.platform].hide(app);
 
 app.on('ready', () => {
+  // Initialize SQLite database for statistics
+  const dbPath = path.join(app.getPath('userData'), 'powerdoro.db');
+  initDatabase(dbPath);
+
   // Initialize sandbox-compatible default retrospect directory
   initDefaultRetrospectDir(path.join(app.getPath('documents'), 'Powerdoro'));
 
