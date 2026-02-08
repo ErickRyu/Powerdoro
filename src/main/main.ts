@@ -60,6 +60,7 @@ function createBlockConcentrationWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      sandbox: false,
       preload: path.join(__dirname, '../preload/block-preload.js'),
     },
   };
@@ -133,6 +134,7 @@ const createTrayWindow = () => {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      sandbox: false,
       preload: path.join(__dirname, '../preload/tray-preload.js'),
     },
   });
@@ -244,6 +246,7 @@ function createSettingsWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      sandbox: false,
       preload: path.join(__dirname, '../preload/settings-preload.js'),
     },
   });

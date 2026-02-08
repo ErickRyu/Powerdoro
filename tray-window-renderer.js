@@ -27,6 +27,13 @@ document.addEventListener('DOMContentLoaded', () => {
     validateAndSend()
   })
 
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !timeInput.disabled) {
+      e.preventDefault()
+      validateAndSend()
+    }
+  })
+
   stopBtn.addEventListener('click', () => {
     window.powerdoro.stopTimer()
   })
@@ -37,6 +44,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   settingsBtn.addEventListener('click', () => {
     window.powerdoro.openSettings()
+  })
+
+  window.addEventListener('focus', () => {
+    if (!timeInput.disabled) {
+      timeInput.focus()
+      timeInput.select()
+    }
   })
 
   presetBtns.forEach((btn) => {
