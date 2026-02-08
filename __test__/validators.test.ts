@@ -2,6 +2,8 @@ import {
   validateTimerInput,
   sanitizeRetrospectText,
   isValidDatePath,
+  validateAccelerator,
+  validateTimerPresets,
 } from '../src/ipc/validators';
 
 describe('validateTimerInput', () => {
@@ -225,6 +227,110 @@ describe('isValidDatePath', () => {
 
     it('should reject arbitrary strings', () => {
       expect(isValidDatePath('not_a_date')).toBe(false);
+    });
+  });
+});
+
+describe('validateAccelerator', () => {
+  describe('valid accelerators', () => {
+    it('should accept CommandOrControl+Shift+P', () => {
+      const result = validateAccelerator('CommandOrControl+Shift+P');
+      expect(result.valid).toBe(true);
+      expect(result.value).toBe('CommandOrControl+Shift+P');
+    });
+
+    it('should accept Ctrl+A', () => {
+      const result = validateAccelerator('Ctrl+A');
+      expect(result.valid).toBe(true);
+    });
+
+    it('should accept Alt+Shift+F5', () => {
+      const result = validateAccelerator('Alt+Shift+F5');
+      expect(result.valid).toBe(true);
+    });
+
+    it('should accept CmdOrCtrl+Space', () => {
+      const result = validateAccelerator('CmdOrCtrl+Space');
+      expect(result.valid).toBe(true);
+    });
+  });
+
+  describe('invalid accelerators', () => {
+    it('should reject null', () => {
+      const result = validateAccelerator(null);
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('required');
+    });
+
+    it('should reject empty string', () => {
+      const result = validateAccelerator('');
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('empty');
+    });
+
+    it('should reject key without modifier', () => {
+      const result = validateAccelerator('P');
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('modifier');
+    });
+
+    it('should reject modifier-only', () => {
+      const result = validateAccelerator('Ctrl+Shift');
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('non-modifier');
+    });
+
+    it('should reject non-string types', () => {
+      const result = validateAccelerator(42);
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('string');
+    });
+  });
+});
+
+describe('validateTimerPresets', () => {
+  describe('valid presets', () => {
+    it('should accept [25, 50, 90]', () => {
+      const result = validateTimerPresets([25, 50, 90]);
+      expect(result.valid).toBe(true);
+      expect(result.value).toEqual([25, 50, 90]);
+    });
+
+    it('should accept boundary values [1, 90, 180]', () => {
+      const result = validateTimerPresets([1, 90, 180]);
+      expect(result.valid).toBe(true);
+    });
+  });
+
+  describe('invalid presets', () => {
+    it('should reject non-array', () => {
+      const result = validateTimerPresets('not an array');
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('array');
+    });
+
+    it('should reject array with wrong count', () => {
+      const result = validateTimerPresets([25, 50]);
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('3');
+    });
+
+    it('should reject values above 180', () => {
+      const result = validateTimerPresets([25, 50, 200]);
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('180');
+    });
+
+    it('should reject values below 1', () => {
+      const result = validateTimerPresets([0, 50, 90]);
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('1');
+    });
+
+    it('should reject non-integer values', () => {
+      const result = validateTimerPresets([25.5, 50, 90]);
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('whole number');
     });
   });
 });

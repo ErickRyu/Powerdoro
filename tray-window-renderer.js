@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('time-form')
   const stopBtn = document.getElementById('stop-btn')
   const exitBtn = document.getElementById('exit-btn')
+  const settingsBtn = document.getElementById('settings-btn')
   const presetBtns = document.querySelectorAll('.preset-btn')
 
   function validateAndSend() {
@@ -34,6 +35,10 @@ document.addEventListener('DOMContentLoaded', () => {
     window.powerdoro.exitApp()
   })
 
+  settingsBtn.addEventListener('click', () => {
+    window.powerdoro.openSettings()
+  })
+
   presetBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
       const minutes = parseInt(btn.getAttribute('data-minutes'), 10)
@@ -53,6 +58,19 @@ document.addEventListener('DOMContentLoaded', () => {
   window.powerdoro.onTimeUpdate((time) => {
     timeInput.value = time
     setTimerRunning(true)
+  })
+
+  window.powerdoro.onSettingsChanged((settings) => {
+    if (settings && settings.timerPresets) {
+      const btns = document.querySelectorAll('.preset-btn')
+      const presets = settings.timerPresets
+      btns.forEach((btn, i) => {
+        if (presets[i] !== undefined) {
+          btn.setAttribute('data-minutes', presets[i])
+          btn.textContent = presets[i] + 'm'
+        }
+      })
+    }
   })
 
   window.powerdoro.onTimerStopped(() => {

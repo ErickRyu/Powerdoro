@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'">
+    <title>Powerdoro Settings</title>
+    <link rel="stylesheet" href="styles/settings-window.css">
+    <script src="../settings-window-renderer.js"></script>
+  </head>
+  <body>
+    <div class="settings-container">
+      <h1>Settings</h1>
+
+      <!-- Hotkey -->
+      <div class="setting-group">
+        <div class="setting-label">Global Hotkey</div>
+        <div class="setting-desc">Click to record a new key combination</div>
+        <div class="hotkey-recorder">
+          <div id="hotkey-display" tabindex="0">CommandOrControl+Shift+P</div>
+          <button type="button" class="btn-reset" id="hotkey-reset">Reset</button>
+        </div>
+      </div>
+
+      <!-- Auto Launch -->
+      <div class="setting-group">
+        <div class="setting-label">Auto Launch</div>
+        <div class="setting-desc">Start Powerdoro when you log in</div>
+        <div class="toggle-row">
+          <label class="toggle">
+            <input type="checkbox" id="auto-launch" checked>
+            <span class="toggle-slider"></span>
+          </label>
+          <span id="auto-launch-label">On</span>
+        </div>
+      </div>
+
+      <!-- Timer Presets -->
+      <div class="setting-group">
+        <div class="setting-label">Timer Presets</div>
+        <div class="setting-desc">Quick-start buttons (1-180 minutes each)</div>
+        <div class="presets-row">
+          <div class="preset-input-group">
+            <label>Preset 1</label>
+            <input type="number" class="preset-input" id="preset-1" min="1" max="180" value="25">
+          </div>
+          <div class="preset-input-group">
+            <label>Preset 2</label>
+            <input type="number" class="preset-input" id="preset-2" min="1" max="180" value="50">
+          </div>
+          <div class="preset-input-group">
+            <label>Preset 3</label>
+            <input type="number" class="preset-input" id="preset-3" min="1" max="180" value="90">
+          </div>
+        </div>
+      </div>
+
+      <!-- Retrospect Directory -->
+      <div class="setting-group">
+        <div class="setting-label">Retrospect Save Location</div>
+        <div class="setting-desc">Where retrospect files are saved (empty = ~/Desktop/retrospect/)</div>
+        <div class="dir-row">
+          <div class="dir-path" id="dir-display">~/Desktop/retrospect/</div>
+          <button type="button" class="btn-browse" id="dir-browse">Browse</button>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="actions">
+        <button type="button" class="btn-secondary" id="btn-cancel">Cancel</button>
+        <button type="button" class="btn-primary" id="btn-save">Save</button>
+      </div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+  </body>
+</html>

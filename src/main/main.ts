@@ -1,13 +1,14 @@
-import { app, BrowserWindow, Tray, ipcMain, globalShortcut, screen } from 'electron';
+import { app, BrowserWindow, Tray, ipcMain, globalShortcut, screen, Menu, dialog } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as os from 'os';
 import { updateTray } from './updateTray';
 import AutoLaunch from 'auto-launch';
 import { getPrettyTime } from '../utils/getPrettyTime';
 import * as positioner from 'electron-traywindow-positioner';
 import { IPC_CHANNELS } from '../ipc/channels';
-import { validateTimerInput, sanitizeRetrospectText, isValidDatePath } from '../ipc/validators';
+import { validateTimerInput, sanitizeRetrospectText, isValidDatePath, validateAccelerator, validateTimerPresets } from '../ipc/validators';
+import { getSettings, saveSettings, getRetrospectDir } from '../settings/store';
+import { AppSettings } from '../settings/types';
 
 function formatTime(date: Date): string {
   return date.toTimeString().slice(0, 5);
@@ -23,13 +24,13 @@ function formatDate(date: Date): string {
 const ONE_MILLISEC = 1000;
 
 let blockwindow: BrowserWindow | null = null;
+let settingsWindow: BrowserWindow | null = null;
 let tray: Tray;
 let trayWindow: BrowserWindow;
 let intervalObj: NodeJS.Timeout;
 let min: number;
 let startedTime: string, stopedTime: string;
-
-const homedir = os.homedir();
+let currentHotkey: string;
 
 function getExternalDisplayThreshold() {
   const displays = screen.getAllDisplays();
@@ -160,7 +161,7 @@ const showTrayWindow = () => {
 };
 
 function appendRetrospect(retrospect: string): void {
-  const retroDirPath = path.join(homedir, 'Desktop', 'retrospect');
+  const retroDirPath = getRetrospectDir();
   if (!fs.existsSync(retroDirPath)) {
     fs.mkdirSync(retroDirPath, { recursive: true });
   }
@@ -187,14 +188,78 @@ function appendRetrospect(retrospect: string): void {
   }
 }
 
-const registerGlobalShortcuts = () => {
-  globalShortcut.register('CommandOrControl+Shift+P', () => {
-    toggleWindow();
-  });
-  if (!globalShortcut.isRegistered('CommandOrControl+Shift+P')) {
-    console.log('registration failed');
+function registerHotkey(accelerator: string): boolean {
+  // Unregister previous hotkey if set
+  if (currentHotkey) {
+    try { globalShortcut.unregister(currentHotkey); } catch (_) { /* ignore */ }
   }
-};
+
+  try {
+    globalShortcut.register(accelerator, () => {
+      toggleWindow();
+    });
+    if (!globalShortcut.isRegistered(accelerator)) {
+      // Registration failed — restore previous
+      if (currentHotkey && currentHotkey !== accelerator) {
+        try {
+          globalShortcut.register(currentHotkey, () => { toggleWindow(); });
+        } catch (_) { /* ignore */ }
+      }
+      return false;
+    }
+    currentHotkey = accelerator;
+    return true;
+  } catch (_) {
+    // Restore previous on error
+    if (currentHotkey && currentHotkey !== accelerator) {
+      try {
+        globalShortcut.register(currentHotkey, () => { toggleWindow(); });
+      } catch (_) { /* ignore */ }
+    }
+    return false;
+  }
+}
+
+function createSettingsWindow() {
+  if (settingsWindow) {
+    settingsWindow.focus();
+    return;
+  }
+  settingsWindow = new BrowserWindow({
+    width: 480,
+    height: 520,
+    frame: true,
+    resizable: false,
+    backgroundColor: '#1a1a1a',
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, '../preload/settings-preload.js'),
+    },
+  });
+  settingsWindow.loadFile(path.join(__dirname, '../../view/settings-window.html'));
+  settingsWindow.on('closed', () => {
+    settingsWindow = null;
+  });
+}
+
+function broadcastSettings(settings: AppSettings) {
+  const allWindows = BrowserWindow.getAllWindows();
+  for (const win of allWindows) {
+    win.webContents.send(IPC_CHANNELS.SETTINGS_CHANGED, settings);
+  }
+}
+
+function setupContextMenu() {
+  const contextMenu = Menu.buildFromTemplate([
+    { label: 'Settings', click: () => createSettingsWindow() },
+    { type: 'separator' },
+    { label: 'Quit Powerdoro', click: () => { globalShortcut.unregisterAll(); app.quit(); } },
+  ]);
+  tray.on('right-click', () => {
+    tray.popUpContextMenu(contextMenu);
+  });
+}
 
 ipcMain.on(IPC_CHANNELS.TIMER_START, (_event, arg: unknown) => {
   const result = validateTimerInput(arg);
@@ -226,18 +291,93 @@ ipcMain.on(IPC_CHANNELS.APP_EXIT, () => {
   app.exit();
 });
 
+ipcMain.on(IPC_CHANNELS.SETTINGS_OPEN, () => {
+  createSettingsWindow();
+});
+
+ipcMain.handle(IPC_CHANNELS.SETTINGS_GET, () => {
+  return getSettings();
+});
+
+ipcMain.handle(IPC_CHANNELS.SETTINGS_SAVE, async (_event, partial: Partial<AppSettings>) => {
+  // Validate hotkey
+  if (partial.hotkey !== undefined) {
+    const result = validateAccelerator(partial.hotkey);
+    if (!result.valid) {
+      return { error: result.error };
+    }
+  }
+
+  // Validate presets
+  if (partial.timerPresets !== undefined) {
+    const result = validateTimerPresets(partial.timerPresets);
+    if (!result.valid) {
+      return { error: result.error };
+    }
+    partial.timerPresets = result.value;
+  }
+
+  const updated = saveSettings(partial);
+
+  // Apply side effects
+  if (partial.hotkey !== undefined) {
+    const success = registerHotkey(partial.hotkey);
+    if (!success) {
+      return { error: 'Failed to register hotkey. It may conflict with another application.' };
+    }
+  }
+
+  if (partial.autoLaunch !== undefined) {
+    const autoLauncher = new AutoLaunch({
+      name: 'powerdoro',
+      path: app.getPath('exe'),
+    });
+    if (partial.autoLaunch) {
+      autoLauncher.enable();
+    } else {
+      autoLauncher.disable();
+    }
+  }
+
+  broadcastSettings(updated);
+  return updated;
+});
+
+ipcMain.handle(IPC_CHANNELS.SETTINGS_SELECT_DIR, async () => {
+  const result = await dialog.showOpenDialog({
+    properties: ['openDirectory'],
+    title: 'Select Retrospect Save Location',
+  });
+  if (result.canceled || result.filePaths.length === 0) {
+    return null;
+  }
+  return result.filePaths[0];
+});
+
 platforms[process.platform].hide(app);
 
 app.on('ready', () => {
+  const settings = getSettings();
+
   const autoLauncher = new AutoLaunch({
     name: 'powerdoro',
     path: app.getPath('exe'),
   });
-  autoLauncher.enable();
+  if (settings.autoLaunch) {
+    autoLauncher.enable();
+  } else {
+    autoLauncher.disable();
+  }
 
   createTray();
   createTrayWindow();
-  registerGlobalShortcuts();
+  setupContextMenu();
+  registerHotkey(settings.hotkey);
+
+  // Send initial settings to tray window after it loads
+  trayWindow.webContents.on('did-finish-load', () => {
+    broadcastSettings(settings);
+  });
 });
 
 app.on('window-all-closed', function () {

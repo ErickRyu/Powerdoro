@@ -11,6 +11,9 @@ contextBridge.exposeInMainWorld('powerdoro', {
   exitApp: () => {
     ipcRenderer.send(IPC_CHANNELS.APP_EXIT);
   },
+  openSettings: () => {
+    ipcRenderer.send(IPC_CHANNELS.SETTINGS_OPEN);
+  },
   onTimeUpdate: (callback: (time: string) => void) => {
     ipcRenderer.on(IPC_CHANNELS.TIMER_UPDATE, (_event, time: string) => {
       callback(time);
@@ -19,6 +22,11 @@ contextBridge.exposeInMainWorld('powerdoro', {
   onTimerStopped: (callback: () => void) => {
     ipcRenderer.on(IPC_CHANNELS.TIMER_STOPPED, () => {
       callback();
+    });
+  },
+  onSettingsChanged: (callback: (settings: Record<string, unknown>) => void) => {
+    ipcRenderer.on(IPC_CHANNELS.SETTINGS_CHANGED, (_event, settings) => {
+      callback(settings);
     });
   },
 });

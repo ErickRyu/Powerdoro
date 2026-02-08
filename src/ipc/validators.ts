@@ -85,6 +85,65 @@ export function sanitizeRetrospectText(text: unknown): ValidationResult<string> 
  * Validates a date string used for retrospect file paths.
  * Must match YYYY_MM_DD format with no path traversal characters.
  */
+/**
+ * Validates an Electron accelerator string.
+ * Must contain at least one modifier (Ctrl/Cmd/Alt/Shift) and one non-modifier key.
+ */
+export function validateAccelerator(value: unknown): ValidationResult<string> {
+  if (value === null || value === undefined) {
+    return { valid: false, value: '', error: 'Accelerator is required' };
+  }
+
+  if (typeof value !== 'string') {
+    return { valid: false, value: '', error: 'Accelerator must be a string' };
+  }
+
+  const trimmed = value.trim();
+  if (trimmed.length === 0) {
+    return { valid: false, value: '', error: 'Accelerator must not be empty' };
+  }
+
+  const parts = trimmed.split('+');
+  const modifiers = ['Command', 'Cmd', 'Control', 'Ctrl', 'CommandOrControl', 'CmdOrCtrl', 'Alt', 'Option', 'AltGr', 'Shift', 'Super', 'Meta'];
+  const modifierParts = parts.filter(p => modifiers.includes(p));
+  const keyParts = parts.filter(p => !modifiers.includes(p));
+
+  if (modifierParts.length === 0) {
+    return { valid: false, value: '', error: 'Accelerator must include at least one modifier key' };
+  }
+
+  if (keyParts.length !== 1) {
+    return { valid: false, value: '', error: 'Accelerator must include exactly one non-modifier key' };
+  }
+
+  return { valid: true, value: trimmed };
+}
+
+/**
+ * Validates timer presets: must be an array of exactly 3 integers, each 1-180.
+ */
+export function validateTimerPresets(value: unknown): ValidationResult<[number, number, number]> {
+  if (!Array.isArray(value)) {
+    return { valid: false, value: [25, 50, 90], error: 'Timer presets must be an array' };
+  }
+
+  if (value.length !== 3) {
+    return { valid: false, value: [25, 50, 90], error: 'Timer presets must contain exactly 3 values' };
+  }
+
+  for (let i = 0; i < 3; i++) {
+    const num = Number(value[i]);
+    if (!Number.isFinite(num) || !Number.isInteger(num)) {
+      return { valid: false, value: [25, 50, 90], error: `Preset ${i + 1} must be a whole number` };
+    }
+    if (num < MIN_TIMER_MINUTES || num > MAX_TIMER_MINUTES) {
+      return { valid: false, value: [25, 50, 90], error: `Preset ${i + 1} must be between ${MIN_TIMER_MINUTES} and ${MAX_TIMER_MINUTES}` };
+    }
+  }
+
+  return { valid: true, value: value.map(Number) as [number, number, number] };
+}
+
 export function isValidDatePath(dateStr: string): boolean {
   if (typeof dateStr !== 'string') {
     return false;

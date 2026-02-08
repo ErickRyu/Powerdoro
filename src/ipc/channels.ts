@@ -13,6 +13,13 @@ export const IPC_CHANNELS = {
   TIMER_UPDATE: 'timer:update',         // was 'time-update'
   TIMER_STOPPED: 'timer:stopped',       // was 'stoped-timer'
   BLOCK_TIME_UPDATE: 'block:time-update', // was 'block-time-update'
+
+  // Settings
+  SETTINGS_GET: 'settings:get',               // invoke/handle
+  SETTINGS_SAVE: 'settings:save',             // invoke/handle
+  SETTINGS_OPEN: 'settings:open',             // send/on
+  SETTINGS_SELECT_DIR: 'settings:select-dir', // invoke/handle
+  SETTINGS_CHANGED: 'settings:changed',       // main -> renderer broadcast
 } as const;
 
 export type IpcChannel = typeof IPC_CHANNELS[keyof typeof IPC_CHANNELS];
