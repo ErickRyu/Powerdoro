@@ -1,31 +1,73 @@
 'use strict';
 
-const {ipcRenderer} = require('electron')
+document.addEventListener('DOMContentLoaded', () => {
+  const timeInput = document.getElementById('time')
+  const submitBtn = document.getElementById('submit_btn')
+  const errorMsg = document.getElementById('error-msg')
+  const form = document.getElementById('time-form')
+  const stopBtn = document.getElementById('stop-btn')
+  const exitBtn = document.getElementById('exit-btn')
+  const presetBtns = document.querySelectorAll('.preset-btn')
 
-function sendTime(event){
-  event.preventDefault()
-  let time = document.getElementById('time').value;
+  function validateAndSend() {
+    const value = parseInt(timeInput.value, 10)
+    if (isNaN(value) || value < 1 || value > 180) {
+      timeInput.classList.add('invalid')
+      errorMsg.textContent = 'Enter 1-180 minutes'
+      return
+    }
+    timeInput.classList.remove('invalid')
+    errorMsg.textContent = ''
+    window.powerdoro.sendTime(value)
+  }
 
-  ipcRenderer.send('asynchronous-message', time)
-}
+  form.addEventListener('submit', (event) => {
+    event.preventDefault()
+    validateAndSend()
+  })
 
-function stopTimer(){
-  ipcRenderer.send('stop-message', 'stop')
-}
+  stopBtn.addEventListener('click', () => {
+    window.powerdoro.stopTimer()
+  })
 
-function exitApp(){
-  ipcRenderer.send('exit-app', 'exit')
-}
+  exitBtn.addEventListener('click', () => {
+    window.powerdoro.exitApp()
+  })
 
-ipcRenderer.on('time-update', (event, arg) =>{ // Todo: Refactoring dupicated get element and consider using Jquery
-  document.getElementById('time').value = arg
-  document.getElementById('time').disabled = true
-  document.getElementById('submit_btn').disabled = true
-})
+  presetBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const minutes = parseInt(btn.getAttribute('data-minutes'), 10)
+      timeInput.value = minutes
+      timeInput.classList.remove('invalid')
+      errorMsg.textContent = ''
+      window.powerdoro.sendTime(minutes)
+    })
+  })
 
-ipcRenderer.on('stoped-timer', (event, arg) =>{
-  document.getElementById('time').value = ''
-  document.getElementById('time').disabled = false
-  document.getElementById('submit_btn').disabled = false
-  document.getElementById('time').focus()
+  function setTimerRunning(running) {
+    timeInput.disabled = running
+    submitBtn.disabled = running
+    presetBtns.forEach((btn) => { btn.disabled = running })
+  }
+
+  window.powerdoro.onTimeUpdate((time) => {
+    timeInput.value = time
+    setTimerRunning(true)
+  })
+
+  window.powerdoro.onTimerStopped(() => {
+    timeInput.value = ''
+    setTimerRunning(false)
+    timeInput.focus()
+
+    if (Notification.permission === 'granted') {
+      new Notification('Powerdoro', { body: 'Timer completed!' })
+    } else if (Notification.permission !== 'denied') {
+      Notification.requestPermission().then((permission) => {
+        if (permission === 'granted') {
+          new Notification('Powerdoro', { body: 'Timer completed!' })
+        }
+      })
+    }
+  })
 })

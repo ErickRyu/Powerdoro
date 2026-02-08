@@ -3,47 +3,16 @@
     <head>
         <meta charset="UTF-8">
         <title>Time's up</title>
+        <link rel="stylesheet" href="styles/block-window.css">
         <script src="../block-window-renderer.js"></script>
-        <style>
-*{
-    background-color: black;
-    color: white;
-}
-          body{
-          }
-          .container {
-              width: 1000px;
-              height: 8000px;
-              display: block;
-              margin: auto auto;
-          }
-          h1 {
-              font-size: 200px;
-          }
-          .retrospect {
-              font-size: 20px;
-              background-color: black;
-              color: white;
-              border: solid 1px white;
-              outline-width: 0px;
-              width: 900px;
-          }
-          .submit_btn{
-              font-size: 20px;
-              background-color: rgba(0,0,0,0);
-              color: white;
-              outline-width: 0px;
-              border: 0px;
-
-          }
-        </style>
     </head>
     <body>
         <div class="container">
             <h1>Time's up!</h1>
-            <form method="post" onsubmit="sendRetrospect(event)">
-                <input type="text" class="retrospect" id="retrospect" autofocus>
-                <input type="submit" class="submit_btn" value="▻">
+            <form id="retrospect-form">
+                <textarea id="retrospect" rows="4" autofocus placeholder="What did you accomplish?"></textarea>
+                <span id="error-msg" class="error-msg"></span>
+                <button type="submit" class="submit-btn">Submit</button>
             </form>
         </div>
     </body>

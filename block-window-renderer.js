@@ -1,15 +1,20 @@
 'use strict';
 
-const {ipcRenderer} = require('electron')
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('retrospect-form')
+  const retrospectInput = document.getElementById('retrospect')
+  const errorMsg = document.getElementById('error-msg')
 
-
-function sendRetrospect(event){
-  let retrospect = document.getElementById('retrospect').value;
-  ipcRenderer.send('retrospect-message', retrospect)
-}
-
-ipcRenderer.on('block-time-update', (event, arg) =>{ // Todo: Refactoring dupicated get element and consider using Jquery
-  document.getElementById('time').value = arg
-  document.getElementById('time').disabled = true
-  document.getElementById('submit_btn').disabled = true
+  form.addEventListener('submit', (event) => {
+    event.preventDefault()
+    const text = retrospectInput.value.trim()
+    if (!text) {
+      retrospectInput.classList.add('invalid')
+      errorMsg.textContent = 'Please write what you accomplished'
+      return
+    }
+    retrospectInput.classList.remove('invalid')
+    errorMsg.textContent = ''
+    window.powerdoro.sendRetrospect(text)
+  })
 })

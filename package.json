@@ -2,7 +2,7 @@
   "name": "powerdoro",
   "version": "0.0.3",
   "description": "",
-  "main": "main.js",
+  "main": "dist/main/main.js",
   "build": {
     "appId": "com.electron.powerdoro",
     "mac": {
@@ -10,10 +10,11 @@
     }
   },
   "scripts": {
-    "start": "electron .",
-    "test": "mocha --colors",
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "build": "tsc",
+    "start": "npm run build && electron .",
+    "test": "jest",
+    "pack": "npm run build && electron-builder --dir",
+    "dist": "npm run build && electron-builder"
   },
   "repository": "",
   "keywords": [
@@ -26,14 +27,15 @@
   "author": "",
   "license": "",
   "devDependencies": {
+    "@types/jest": "^29.5.14",
     "electron": "^17.0.1",
-    "electron-builder": "^22.14.13"
+    "electron-builder": "^22.14.13",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.3.4",
+    "typescript": "^5.0.0"
   },
   "dependencies": {
     "auto-launch": "^5.0.5",
-    "electron-traywindow-positioner": "^1.1.1",
-    "mocha": "^9.2.1",
-    "moment": "^2.22.2",
-    "moment-duration-format": "^2.2.2"
+    "electron-traywindow-positioner": "^1.1.1"
   }
 }

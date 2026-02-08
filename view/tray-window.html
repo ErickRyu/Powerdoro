@@ -1,50 +1,34 @@
 <!doctype html>
 <html>
     <head>
-<style>
-.container{
-    width: 200px;
-    height: 140px;
-    background-color: black;
-        border-radius: 10px;
-}
-#time{
-    margin: 20px;
-    background-color: black;
-    color: white;
-    font-size: 20px;
-    border: 0px;
-    outline-width: 0px;
-    width: 100px;
-}
-.submit_btn{
-    font-size: 20px;
-    background-color: rgba(0,0,0,0);
-    color: white;
-    outline-width: 0px;
-    border: 0px;
-}
-.btn{
-    font-size: 16px;
-    background-color: rgba(0,0,0,0);
-    color: white;
-    outline-width: 0px;
-    border: 0px;
-    margin-left: 147px;
-}
-</style>
-<script src="../tray-window-renderer.js"></script>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="styles/tray-window.css">
+        <script src="../tray-window-renderer.js"></script>
     </head>
     <body>
-        <div class="container" name="timeform"> 
-            <form action='post' onsubmit="sendTime(event)">
-                <input type="text" id="time" autofocus placeholder="Time">
-               <button type="submit" id="submit_btn" class="submit_btn"><img
-                 src="../res/img/play-button.svg" id="btn_img" width="24" height="24"></button>
+        <div class="container">
+            <form id="time-form">
+                <div class="form-row">
+                    <input type="number" id="time" min="1" max="180" step="1" autofocus placeholder="Min">
+                    <button type="submit" id="submit_btn" class="submit-btn">
+                        <img src="../res/img/play-button.svg" id="btn_img" width="24" height="24">
+                    </button>
+                </div>
+                <span id="error-msg" class="error-msg"></span>
             </form>
-            <button class="btn"  onclick="stopTimer()" ><img src="../res/img/stop.svg" id="btn_img" width="22" height="22"></button>
-            <button class="btn"  onclick="exitApp()" ><img src="../res/img/minus-circle.svg" id="btn_img" width="22" height="22"></button>
-
+            <div class="presets">
+                <button type="button" class="preset-btn" data-minutes="25">25m</button>
+                <button type="button" class="preset-btn" data-minutes="50">50m</button>
+                <button type="button" class="preset-btn" data-minutes="90">90m</button>
+            </div>
+            <div class="controls">
+                <button type="button" id="stop-btn" class="icon-btn">
+                    <img src="../res/img/stop.svg" width="22" height="22">
+                </button>
+                <button type="button" id="exit-btn" class="icon-btn">
+                    <img src="../res/img/minus-circle.svg" width="22" height="22">
+                </button>
+            </div>
         </div>
     </body>
 </html>
