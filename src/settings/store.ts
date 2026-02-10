@@ -23,6 +23,10 @@ const schema = {
     type: 'string' as const,
     default: DEFAULT_SETTINGS.retrospectDir,
   },
+  retrospectDirBookmark: {
+    type: 'string' as const,
+    default: DEFAULT_SETTINGS.retrospectDirBookmark,
+  },
 };
 
 const store = new Store<AppSettings>({
@@ -37,6 +41,7 @@ export function getSettings(): AppSettings {
     autoLaunch: store.get('autoLaunch'),
     timerPresets: store.get('timerPresets'),
     retrospectDir: store.get('retrospectDir'),
+    retrospectDirBookmark: store.get('retrospectDirBookmark'),
   };
 }
 
@@ -45,6 +50,7 @@ export function saveSettings(partial: Partial<AppSettings>): AppSettings {
   if (partial.autoLaunch !== undefined) store.set('autoLaunch', partial.autoLaunch);
   if (partial.timerPresets !== undefined) store.set('timerPresets', partial.timerPresets);
   if (partial.retrospectDir !== undefined) store.set('retrospectDir', partial.retrospectDir);
+  if (partial.retrospectDirBookmark !== undefined) store.set('retrospectDirBookmark', partial.retrospectDirBookmark);
   return getSettings();
 }
 
@@ -58,4 +64,8 @@ export function getRetrospectDir(): string {
     return dir;
   }
   return defaultRetrospectDir;
+}
+
+export function getRetrospectDirBookmark(): string {
+  return store.get('retrospectDirBookmark') || '';
 }

@@ -1,12 +1,13 @@
-import { app, BrowserWindow, Tray, ipcMain, globalShortcut, screen, Menu, dialog } from 'electron';
+import { app, BrowserWindow, Tray, ipcMain, globalShortcut, screen, Menu, dialog, Notification } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
 import { updateTray } from './updateTray';
 import { getPrettyTime } from '../utils/getPrettyTime';
 import * as positioner from 'electron-traywindow-positioner';
 import { IPC_CHANNELS } from '../ipc/channels';
-import { validateTimerInput, sanitizeRetrospectText, isValidDatePath, validateAccelerator, validateTimerPresets } from '../ipc/validators';
-import { getSettings, saveSettings, getRetrospectDir, initDefaultRetrospectDir } from '../settings/store';
+import { validateTimerInput, sanitizeRetrospectText, isValidDatePath, validateAccelerator, validateTimerPresets, validateRetrospectDir } from '../ipc/validators';
+import { getSettings, saveSettings, getRetrospectDir, getRetrospectDirBookmark, initDefaultRetrospectDir } from '../settings/store';
+import { isMAS } from '../utils/platform';
 import { AppSettings } from '../settings/types';
 import { initDatabase, insertSession, getStats } from '../stats/database';
 
@@ -33,6 +34,11 @@ let min: number;
 let startedTime: string, stopedTime: string;
 let currentHotkey: string;
 
+function isTrustedIpcSender(event: { senderFrame?: { url: string } | null; sender: Electron.WebContents }): boolean {
+  const url = event.senderFrame?.url || event.sender.getURL();
+  return typeof url === 'string' && url.startsWith('file://');
+}
+
 function getExternalDisplayThreshold() {
   const displays = screen.getAllDisplays();
   // Find the primary display (usually the built-in display)
@@ -52,24 +58,43 @@ function createBlockConcentrationWindow() {
   const displayThreshold = getExternalDisplayThreshold();
   const xThreshold = displayThreshold.x;
   const yThreshold = displayThreshold.y;
+  const mas = isMAS();
   const setting = {
     x: xThreshold,
     y: yThreshold,
     fullscreen: true,
     frame: false,
-    alwaysOnTop: true,
+    alwaysOnTop: !mas,
     movable: false,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      sandbox: false,
+      sandbox: true,
       preload: path.join(__dirname, '../preload/block-preload.js'),
     },
   };
   blockwindow = new BrowserWindow(setting);
   const blockwindowPath = path.join(__dirname, '../../view/block-window.html');
   blockwindow.loadFile(blockwindowPath);
-  blockwindow.setClosable(false);
+
+  if (mas) {
+    blockwindow.setAlwaysOnTop(true, 'floating');
+    blockwindow.on('close', (e) => {
+      const choice = dialog.showMessageBoxSync(blockwindow!, {
+        type: 'question',
+        buttons: ['Keep Writing', 'Close'],
+        defaultId: 0,
+        title: 'Close Retrospect?',
+        message: 'You haven\'t submitted your retrospect yet. Are you sure you want to close?',
+      });
+      if (choice === 0) {
+        e.preventDefault();
+      }
+    });
+  } else {
+    blockwindow.setClosable(false);
+  }
+
   blockwindow.on('closed', function () {
     blockwindow = null;
   });
@@ -80,6 +105,10 @@ function stopTimer() {
   trayWindow.webContents.send(IPC_CHANNELS.TIMER_STOPPED);
   clearTimeout(intervalObj);
   createBlockConcentrationWindow();
+
+  if (Notification.isSupported()) {
+    new Notification({ title: 'Powerdoro', body: 'Timer completed!' }).show();
+  }
 }
 
 function getMilliSecFor(min: number, sec: number): number {
@@ -136,12 +165,14 @@ const createTrayWindow = () => {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      sandbox: false,
+      sandbox: true,
       preload: path.join(__dirname, '../preload/tray-preload.js'),
     },
   });
   trayWindow.loadURL('file://' + path.join(__dirname, '../../view/tray-window.html'));
-  trayWindow.setVisibleOnAllWorkspaces(true);
+  if (!isMAS()) {
+    trayWindow.setVisibleOnAllWorkspaces(true);
+  }
   trayWindow.on('blur', () => {
     if (!trayWindow.webContents.isDevToolsOpened()) {
       trayWindow.hide();
@@ -176,48 +207,69 @@ const showTrayWindow = () => {
 
 function appendRetrospect(retrospect: string): void {
   const retroDirPath = getRetrospectDir();
-  if (!fs.existsSync(retroDirPath)) {
-    fs.mkdirSync(retroDirPath, { recursive: true });
-  }
 
-  const dateStr = formatDate(new Date());
-  if (!isValidDatePath(dateStr)) {
-    console.error('Invalid date path generated:', dateStr);
-    return;
-  }
-
-  const retroPath = path.join(retroDirPath, `${dateStr}.txt`);
-  const ms = getMilliSecFor(min, 0);
-  const prettyTime = getPrettyTime(ms);
-  const history = `[${startedTime}-${stopedTime}] [${prettyTime}] : ${retrospect}`;
-  fs.appendFile(retroPath, history + '\n', (err) => {
-    if (err) {
-      console.log(err);
-      throw err;
+  // For MAS builds, access security-scoped bookmark if available
+  let stopAccess: (() => void) | null = null;
+  if (isMAS()) {
+    const bookmark = getRetrospectDirBookmark();
+    if (bookmark) {
+      try {
+        stopAccess = app.startAccessingSecurityScopedResource(bookmark) as unknown as () => void;
+      } catch (err) {
+        console.error('Failed to access security-scoped resource:', err);
+      }
     }
-  });
-
-  // Save session to SQLite for statistics
-  try {
-    insertSession({
-      date: dateStr,
-      startTime: startedTime,
-      endTime: stopedTime,
-      durationMinutes: min,
-      retrospectText: retrospect,
-      createdAt: new Date().toISOString(),
-    });
-  } catch (err) {
-    console.error('Failed to save session to database:', err);
   }
 
-  if (blockwindow) {
-    blockwindow.setClosable(true);
-    blockwindow.close();
+  try {
+    if (!fs.existsSync(retroDirPath)) {
+      fs.mkdirSync(retroDirPath, { recursive: true });
+    }
+
+    const dateStr = formatDate(new Date());
+    if (!isValidDatePath(dateStr)) {
+      console.error('Invalid date path generated:', dateStr);
+      return;
+    }
+
+    const retroPath = path.join(retroDirPath, `${dateStr}.txt`);
+    const ms = getMilliSecFor(min, 0);
+    const prettyTime = getPrettyTime(ms);
+    const history = `[${startedTime}-${stopedTime}] [${prettyTime}] : ${retrospect}`;
+    fs.appendFile(retroPath, history + '\n', (err) => {
+      if (err) {
+        console.error('Failed to append retrospect file:', err);
+      }
+    });
+
+    // Save session to SQLite for statistics
+    try {
+      insertSession({
+        date: dateStr,
+        startTime: startedTime,
+        endTime: stopedTime,
+        durationMinutes: min,
+        retrospectText: retrospect,
+        createdAt: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.error('Failed to save session to database:', err);
+    }
+
+    if (blockwindow) {
+      blockwindow.setClosable(true);
+      blockwindow.close();
+    }
+  } finally {
+    if (stopAccess) {
+      stopAccess();
+    }
   }
 }
 
 function registerHotkey(accelerator: string): boolean {
+  if (isMAS()) return false;
+
   // Unregister previous hotkey if set
   if (currentHotkey) {
     try { globalShortcut.unregister(currentHotkey); } catch (_) { /* ignore */ }
@@ -263,7 +315,7 @@ function createSettingsWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      sandbox: false,
+      sandbox: true,
       preload: path.join(__dirname, '../preload/settings-preload.js'),
     },
   });
@@ -287,7 +339,7 @@ function createStatsWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      sandbox: false,
+      sandbox: true,
       preload: path.join(__dirname, '../preload/stats-preload.js'),
     },
   });
@@ -309,7 +361,7 @@ function setupContextMenu() {
     { label: 'Statistics', click: () => createStatsWindow() },
     { label: 'Settings', click: () => createSettingsWindow() },
     { type: 'separator' },
-    { label: 'Quit Powerdoro', click: () => { globalShortcut.unregisterAll(); app.quit(); } },
+    { label: 'Quit Powerdoro', click: () => { if (!isMAS()) globalShortcut.unregisterAll(); app.quit(); } },
   ]);
   tray.on('right-click', () => {
     tray.popUpContextMenu(contextMenu);
@@ -317,6 +369,7 @@ function setupContextMenu() {
 }
 
 ipcMain.on(IPC_CHANNELS.TIMER_START, (_event, arg: unknown) => {
+  if (!isTrustedIpcSender(_event)) return;
   const result = validateTimerInput(arg);
   if (!result.valid) {
     console.error('Invalid timer input:', result.error);
@@ -328,6 +381,7 @@ ipcMain.on(IPC_CHANNELS.TIMER_START, (_event, arg: unknown) => {
 });
 
 ipcMain.on(IPC_CHANNELS.RETROSPECT_SUBMIT, (_event, arg: unknown) => {
+  if (!isTrustedIpcSender(_event)) return;
   const result = sanitizeRetrospectText(arg);
   if (!result.valid) {
     console.error('Invalid retrospect text:', result.error);
@@ -336,35 +390,48 @@ ipcMain.on(IPC_CHANNELS.RETROSPECT_SUBMIT, (_event, arg: unknown) => {
   appendRetrospect(result.value);
 });
 
-ipcMain.on(IPC_CHANNELS.TIMER_STOP, () => {
+ipcMain.on(IPC_CHANNELS.TIMER_STOP, (event) => {
+  if (!isTrustedIpcSender(event)) return;
   stopTimer();
   tray.setTitle('00:00');
 });
 
-ipcMain.on(IPC_CHANNELS.APP_EXIT, () => {
-  globalShortcut.unregisterAll();
+ipcMain.on(IPC_CHANNELS.APP_EXIT, (event) => {
+  if (!isTrustedIpcSender(event)) return;
+  if (!isMAS()) globalShortcut.unregisterAll();
   app.exit();
 });
 
-ipcMain.on(IPC_CHANNELS.SETTINGS_OPEN, () => {
+ipcMain.on(IPC_CHANNELS.SETTINGS_OPEN, (event) => {
+  if (!isTrustedIpcSender(event)) return;
   createSettingsWindow();
 });
 
-ipcMain.on(IPC_CHANNELS.STATS_OPEN, () => {
+ipcMain.on(IPC_CHANNELS.STATS_OPEN, (event) => {
+  if (!isTrustedIpcSender(event)) return;
   createStatsWindow();
 });
 
-ipcMain.handle(IPC_CHANNELS.SETTINGS_GET, () => {
+ipcMain.handle(IPC_CHANNELS.SETTINGS_GET, (event) => {
+  if (!isTrustedIpcSender(event)) {
+    throw new Error('Unauthorized IPC sender');
+  }
   return getSettings();
 });
 
 ipcMain.handle(IPC_CHANNELS.SETTINGS_SAVE, async (_event, partial: Partial<AppSettings>) => {
+  if (!isTrustedIpcSender(_event)) {
+    throw new Error('Unauthorized IPC sender');
+  }
+  const prepared: Partial<AppSettings> = {};
+
   // Validate hotkey
   if (partial.hotkey !== undefined) {
     const result = validateAccelerator(partial.hotkey);
     if (!result.valid) {
       return { error: result.error };
     }
+    prepared.hotkey = result.value;
   }
 
   // Validate presets
@@ -373,40 +440,71 @@ ipcMain.handle(IPC_CHANNELS.SETTINGS_SAVE, async (_event, partial: Partial<AppSe
     if (!result.valid) {
       return { error: result.error };
     }
-    partial.timerPresets = result.value;
+    prepared.timerPresets = result.value;
   }
 
-  const updated = saveSettings(partial);
+  // Validate retrospect directory
+  if (partial.retrospectDir !== undefined) {
+    const result = validateRetrospectDir(partial.retrospectDir);
+    if (!result.valid) {
+      return { error: result.error };
+    }
+    prepared.retrospectDir = result.value;
+  }
 
-  // Apply side effects
-  if (partial.hotkey !== undefined) {
-    const success = registerHotkey(partial.hotkey);
-    if (!success) {
+  if (partial.autoLaunch !== undefined) {
+    prepared.autoLaunch = partial.autoLaunch;
+  }
+
+  if (partial.retrospectDirBookmark !== undefined) {
+    prepared.retrospectDirBookmark = partial.retrospectDirBookmark;
+  }
+
+  // Apply side effects before persistence to avoid saved-but-not-applied drift.
+  if (prepared.hotkey !== undefined) {
+    const success = registerHotkey(prepared.hotkey);
+    if (!success && !isMAS()) {
       return { error: 'Failed to register hotkey. It may conflict with another application.' };
     }
   }
 
-  if (partial.autoLaunch !== undefined) {
-    app.setLoginItemSettings({ openAtLogin: partial.autoLaunch });
+  if (prepared.autoLaunch !== undefined && !isMAS()) {
+    app.setLoginItemSettings({ openAtLogin: prepared.autoLaunch });
   }
 
+  const updated = saveSettings(prepared);
   broadcastSettings(updated);
   return updated;
 });
 
-ipcMain.handle(IPC_CHANNELS.STATS_GET, () => {
+ipcMain.handle(IPC_CHANNELS.STATS_GET, (event) => {
+  if (!isTrustedIpcSender(event)) {
+    throw new Error('Unauthorized IPC sender');
+  }
   return getStats();
 });
 
-ipcMain.handle(IPC_CHANNELS.SETTINGS_SELECT_DIR, async () => {
+ipcMain.handle(IPC_CHANNELS.SETTINGS_SELECT_DIR, async (event) => {
+  if (!isTrustedIpcSender(event)) {
+    throw new Error('Unauthorized IPC sender');
+  }
+  const mas = isMAS();
   const result = await dialog.showOpenDialog({
     properties: ['openDirectory'],
+    securityScopedBookmarks: mas,
     title: 'Select Retrospect Save Location',
   });
   if (result.canceled || result.filePaths.length === 0) {
     return null;
   }
-  return result.filePaths[0];
+  if (mas && result.bookmarks && result.bookmarks.length > 0) {
+    return { path: result.filePaths[0], bookmark: result.bookmarks[0] };
+  }
+  return { path: result.filePaths[0] };
+});
+
+ipcMain.handle(IPC_CHANNELS.IS_MAS, () => {
+  return isMAS();
 });
 
 platforms[process.platform].hide(app);
@@ -421,12 +519,17 @@ app.on('ready', () => {
 
   const settings = getSettings();
 
-  app.setLoginItemSettings({ openAtLogin: settings.autoLaunch });
+  if (!isMAS()) {
+    app.setLoginItemSettings({ openAtLogin: settings.autoLaunch });
+  }
 
   createTray();
   createTrayWindow();
   setupContextMenu();
-  registerHotkey(settings.hotkey);
+
+  if (!isMAS()) {
+    registerHotkey(settings.hotkey);
+  }
 
   // Send initial settings to tray window after it loads
   trayWindow.webContents.on('did-finish-load', () => {

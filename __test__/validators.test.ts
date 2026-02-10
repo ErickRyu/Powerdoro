@@ -4,6 +4,7 @@ import {
   isValidDatePath,
   validateAccelerator,
   validateTimerPresets,
+  validateRetrospectDir,
 } from '../src/ipc/validators';
 
 describe('validateTimerInput', () => {
@@ -285,6 +286,32 @@ describe('validateAccelerator', () => {
       expect(result.valid).toBe(false);
       expect(result.error).toContain('string');
     });
+  });
+});
+
+describe('validateRetrospectDir', () => {
+  it('should allow empty path as default-directory sentinel', () => {
+    const result = validateRetrospectDir('');
+    expect(result.valid).toBe(true);
+    expect(result.value).toBe('');
+  });
+
+  it('should allow a normal absolute directory path', () => {
+    const result = validateRetrospectDir('/Users/test/Documents/Powerdoro');
+    expect(result.valid).toBe(true);
+    expect(result.value).toBe('/Users/test/Documents/Powerdoro');
+  });
+
+  it('should reject non-string values', () => {
+    const result = validateRetrospectDir(123 as unknown as string);
+    expect(result.valid).toBe(false);
+    expect(result.error).toContain('string');
+  });
+
+  it('should reject paths containing null byte', () => {
+    const result = validateRetrospectDir('abc\0def');
+    expect(result.valid).toBe(false);
+    expect(result.error).toContain('invalid characters');
   });
 });
 

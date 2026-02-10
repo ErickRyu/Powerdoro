@@ -7,6 +7,13 @@ exports.default = async function notarizing(context) {
     return;
   }
 
+  // Skip notarization for MAS builds - Apple handles this during App Store review
+  const isMasBuild = context.targets.some(t => t.name === 'mas' || t.name === 'mas-dev');
+  if (isMasBuild) {
+    console.log('Skipping notarization: MAS builds are notarized by Apple during App Store review.');
+    return;
+  }
+
   if (!process.env.APPLE_ID || !process.env.APPLE_APP_SPECIFIC_PASSWORD || !process.env.APPLE_TEAM_ID) {
     console.log('Skipping notarization: missing APPLE_ID, APPLE_APP_SPECIFIC_PASSWORD, or APPLE_TEAM_ID env vars');
     return;

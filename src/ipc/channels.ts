@@ -24,6 +24,9 @@ export const IPC_CHANNELS = {
   // Statistics
   STATS_GET: 'stats:get',                     // invoke/handle
   STATS_OPEN: 'stats:open',                   // send/on
+
+  // Platform
+  IS_MAS: 'app:is-mas',                       // invoke/handle
 } as const;
 
 export type IpcChannel = typeof IPC_CHANNELS[keyof typeof IPC_CHANNELS];

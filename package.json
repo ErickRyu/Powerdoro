@@ -1,6 +1,6 @@
 {
   "name": "powerdoro",
-  "version": "0.0.3",
+  "version": "1.0.0",
   "description": "Pomodoro timer with mandatory retrospective logging",
   "main": "dist/main/main.js",
   "build": {
@@ -33,6 +33,7 @@
     },
     "mas": {
       "category": "public.app-category.productivity",
+      "type": "distribution",
       "target": [
         {
           "target": "mas",
@@ -44,7 +45,28 @@
       "entitlements": "build/entitlements.mas.plist",
       "entitlementsInherit": "build/entitlements.mas.inherit.plist",
       "provisioningProfile": "build/embedded.provisionprofile",
-      "artifactName": "${productName}-${version}-mas.${ext}"
+      "artifactName": "${productName}-${version}-mas.${ext}",
+      "extendInfo": {
+        "LSUIElement": true
+      }
+    },
+    "mas-dev": {
+      "category": "public.app-category.productivity",
+      "type": "development",
+      "target": [
+        {
+          "target": "mas-dev",
+          "arch": [
+            "universal"
+          ]
+        }
+      ],
+      "entitlements": "build/entitlements.mas.plist",
+      "entitlementsInherit": "build/entitlements.mas.inherit.plist",
+      "provisioningProfile": "build/embedded.provisionprofile",
+      "extendInfo": {
+        "LSUIElement": true
+      }
     },
     "dmg": {
       "sign": false,
@@ -66,12 +88,14 @@
   "scripts": {
     "build": "tsc",
     "rebuild:electron": "npx electron-rebuild -f -w better-sqlite3",
+    "rebuild:mas": "npx electron-rebuild -f -w better-sqlite3 --arch=universal",
     "start": "npm run rebuild:electron && npm run build && electron .",
     "test": "jest",
     "pack": "npm run rebuild:electron && npm run build && electron-builder --dir",
     "dist": "npm run rebuild:electron && npm run build && electron-builder",
     "dist:dmg": "npm run rebuild:electron && npm run build && electron-builder --mac dmg",
-    "dist:mas": "npm run rebuild:electron && npm run build && electron-builder --mac mas"
+    "dist:mas": "npm run rebuild:mas && npm run build && electron-builder --mac mas",
+    "dist:mas-dev": "npm run rebuild:mas && npm run build && electron-builder --mac mas-dev"
   },
   "repository": "",
   "keywords": [

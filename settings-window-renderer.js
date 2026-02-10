@@ -55,6 +55,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   loadSettings();
 
+  // MAS mode: disable unavailable features
+  window.powerdoro.isMAS().then((mas) => {
+    if (mas) {
+      document.getElementById('hotkey-recorder').style.display = 'none';
+      document.getElementById('hotkey-desc').textContent = 'Global hotkeys are not available in App Store version';
+      document.getElementById('auto-launch-group').style.display = 'none';
+    }
+  });
+
   // Auto-launch label update
   autoLaunchCheckbox.addEventListener('change', () => {
     autoLaunchLabel.textContent = autoLaunchCheckbox.checked ? 'On' : 'Off';
@@ -138,9 +147,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Directory Picker ---
   dirBrowse.addEventListener('click', () => {
-    window.powerdoro.selectDirectory().then((dirPath) => {
-      if (dirPath) {
+    window.powerdoro.selectDirectory().then((result) => {
+      if (result) {
+        const dirPath = typeof result === 'string' ? result : result.path;
         dirDisplay.textContent = dirPath;
+        if (result && result.bookmark) {
+          dirDisplay.dataset.bookmark = result.bookmark;
+        }
       }
     });
   });
@@ -174,6 +187,9 @@ document.addEventListener('DOMContentLoaded', () => {
       timerPresets: [p1, p2, p3],
       retrospectDir: dirDisplay.textContent.includes('(default)') ? '' : dirDisplay.textContent,
     };
+    if (dirDisplay.dataset.bookmark) {
+      settings.retrospectDirBookmark = dirDisplay.dataset.bookmark;
+    }
 
     window.powerdoro.saveSettings(settings).then((result) => {
       if (result && result.error) {

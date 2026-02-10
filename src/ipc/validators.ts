@@ -7,6 +7,7 @@ const MIN_TIMER_MINUTES = 1;
 const MAX_TIMER_MINUTES = 180;
 const MAX_RETROSPECT_LENGTH = 1000;
 const DATE_PATH_REGEX = /^\d{4}_\d{2}_\d{2}$/;
+const MAX_PATH_LENGTH = 4096;
 
 export interface ValidationResult<T> {
   valid: boolean;
@@ -142,6 +143,39 @@ export function validateTimerPresets(value: unknown): ValidationResult<[number, 
   }
 
   return { valid: true, value: value.map(Number) as [number, number, number] };
+}
+
+/**
+ * Validates user-provided directory path used for retrospect storage.
+ * Empty string is allowed (means "use default directory").
+ */
+export function validateRetrospectDir(value: unknown): ValidationResult<string> {
+  if (value === undefined) {
+    return { valid: true, value: '' };
+  }
+
+  if (value === null) {
+    return { valid: false, value: '', error: 'Retrospect directory must be a string' };
+  }
+
+  if (typeof value !== 'string') {
+    return { valid: false, value: '', error: 'Retrospect directory must be a string' };
+  }
+
+  const trimmed = value.trim();
+  if (trimmed.length === 0) {
+    return { valid: true, value: '' };
+  }
+
+  if (trimmed.length > MAX_PATH_LENGTH) {
+    return { valid: false, value: '', error: 'Retrospect directory path is too long' };
+  }
+
+  if (trimmed.includes('\0')) {
+    return { valid: false, value: '', error: 'Retrospect directory contains invalid characters' };
+  }
+
+  return { valid: true, value: trimmed };
 }
 
 export function isValidDatePath(dateStr: string): boolean {

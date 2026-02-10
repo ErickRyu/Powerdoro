@@ -3,6 +3,7 @@ export interface AppSettings {
   autoLaunch: boolean;
   timerPresets: [number, number, number];
   retrospectDir: string;
+  retrospectDirBookmark: string;
 }
 
 export const DEFAULT_SETTINGS: Readonly<AppSettings> = {
@@ -10,4 +11,5 @@ export const DEFAULT_SETTINGS: Readonly<AppSettings> = {
   autoLaunch: true,
   timerPresets: [25, 50, 90],
   retrospectDir: '',
+  retrospectDirBookmark: '',
 };
