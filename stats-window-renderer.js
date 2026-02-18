@@ -23,6 +23,12 @@ function formatHourLabel(hour) {
   return (hour - 12) + 'PM';
 }
 
+function formatDateTime(dateStr, startTime, endTime) {
+  const parts = dateStr.split('_');
+  if (parts.length !== 3) return dateStr + ' ' + startTime + '-' + endTime;
+  return parts[0] + '-' + parts[1] + '-' + parts[2] + ' ' + startTime + '-' + endTime;
+}
+
 function updateSummaryCards(data) {
   document.getElementById('today-sessions').textContent = data.today.sessionCount + ' sessions';
   document.getElementById('today-minutes').textContent = data.today.totalMinutes + ' min total';
@@ -178,6 +184,37 @@ function createMonthlyChart(data) {
   });
 }
 
+function renderRecentRetrospects(data) {
+  var list = document.getElementById('retrospect-list');
+  if (!list) return;
+
+  list.innerHTML = '';
+  if (!data.recentRetrospects || data.recentRetrospects.length === 0) {
+    var empty = document.createElement('div');
+    empty.className = 'retrospect-empty';
+    empty.textContent = 'No retrospect records yet.';
+    list.appendChild(empty);
+    return;
+  }
+
+  data.recentRetrospects.forEach(function(item) {
+    var row = document.createElement('div');
+    row.className = 'retrospect-item';
+
+    var meta = document.createElement('div');
+    meta.className = 'retrospect-meta';
+    meta.textContent = formatDateTime(item.date, item.startTime, item.endTime) + '  ·  ' + item.durationMinutes + ' min';
+
+    var text = document.createElement('div');
+    text.className = 'retrospect-text';
+    text.textContent = item.retrospectText;
+
+    row.appendChild(meta);
+    row.appendChild(text);
+    list.appendChild(row);
+  });
+}
+
 // Toggle buttons
 document.querySelectorAll('.toggle-btn').forEach(function(btn) {
   btn.addEventListener('click', function() {
@@ -197,4 +234,5 @@ window.powerdoro.getStats().then(function(data) {
   createDailyChart(7);
   createHourlyChart(data);
   createMonthlyChart(data);
+  renderRecentRetrospects(data);
 });

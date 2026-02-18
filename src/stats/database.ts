@@ -5,6 +5,7 @@ import {
   DailyStat,
   HourlyDistribution,
   MonthlyTrend,
+  RecentRetrospect,
   StatsData,
 } from './types';
 
@@ -166,6 +167,25 @@ function getMonthlyTrends(): MonthlyTrend[] {
   }));
 }
 
+function getRecentRetrospects(limit = 30): RecentRetrospect[] {
+  const rows = db.prepare(`
+    SELECT
+      date,
+      start_time AS startTime,
+      end_time AS endTime,
+      duration_minutes AS durationMinutes,
+      retrospect_text AS retrospectText
+    FROM sessions
+    ORDER BY created_at DESC
+    LIMIT ?
+  `).all(limit) as RecentRetrospect[];
+
+  return rows.map((row) => ({
+    ...row,
+    durationMinutes: Math.round(row.durationMinutes * 10) / 10,
+  }));
+}
+
 function calculateStreaks(): { currentStreak: number; longestStreak: number } {
   const rows = db.prepare(`
     SELECT DISTINCT date FROM sessions ORDER BY date DESC
@@ -225,6 +245,7 @@ export function getStats(): StatsData {
   const dailyStats = getDailyStats();
   const hourlyDistribution = getHourlyDistribution();
   const monthlyTrends = getMonthlyTrends();
+  const recentRetrospects = getRecentRetrospects();
   const { currentStreak, longestStreak } = calculateStreaks();
 
   return {
@@ -233,6 +254,7 @@ export function getStats(): StatsData {
     dailyStats,
     hourlyDistribution,
     monthlyTrends,
+    recentRetrospects,
     currentStreak,
     longestStreak,
   };

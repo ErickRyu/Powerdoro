@@ -37,6 +37,14 @@ export interface MonthlyTrend {
   sessionCount: number;
 }
 
+export interface RecentRetrospect {
+  date: string;              // YYYY_MM_DD
+  startTime: string;         // HH:MM
+  endTime: string;           // HH:MM
+  durationMinutes: number;
+  retrospectText: string;
+}
+
 /** 통계 응답 (렌더러로 전달) */
 export interface StatsData {
   today: PeriodSummary;
@@ -44,6 +52,7 @@ export interface StatsData {
   dailyStats: DailyStat[];
   hourlyDistribution: HourlyDistribution[];
   monthlyTrends: MonthlyTrend[];
+  recentRetrospects: RecentRetrospect[];
   currentStreak: number;
   longestStreak: number;
 }

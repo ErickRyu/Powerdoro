@@ -101,3 +101,38 @@ canvas {
   width: 100% !important;
   max-height: 220px;
 }
+
+.retrospect-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.retrospect-item {
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.retrospect-meta {
+  font-size: 11px;
+  color: #888;
+  margin-bottom: 6px;
+}
+
+.retrospect-text {
+  font-size: 13px;
+  color: #ddd;
+  white-space: pre-wrap;
+  line-height: 1.4;
+}
+
+.retrospect-empty {
+  font-size: 13px;
+  color: #888;
+  text-align: center;
+  padding: 12px 0;
+}
