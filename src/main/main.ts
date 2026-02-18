@@ -29,10 +29,11 @@ let settingsWindow: BrowserWindow | null = null;
 let statsWindow: BrowserWindow | null = null;
 let tray: Tray;
 let trayWindow: BrowserWindow;
-let intervalObj: NodeJS.Timeout;
+let intervalObj: NodeJS.Timeout | null = null;
 let min: number;
 let startedTime: string, stopedTime: string;
 let currentHotkey: string;
+let isQuitting = false;
 
 function isTrustedIpcSender(event: { senderFrame?: { url: string } | null; sender: Electron.WebContents }): boolean {
   const url = event.senderFrame?.url || event.sender.getURL();
@@ -80,6 +81,9 @@ function createBlockConcentrationWindow() {
   if (mas) {
     blockwindow.setAlwaysOnTop(true, 'floating');
     blockwindow.on('close', (e) => {
+      if (isQuitting) {
+        return;
+      }
       const choice = dialog.showMessageBoxSync(blockwindow!, {
         type: 'question',
         buttons: ['Keep Writing', 'Close'],
@@ -103,7 +107,10 @@ function createBlockConcentrationWindow() {
 function stopTimer() {
   stopedTime = formatTime(new Date());
   trayWindow.webContents.send(IPC_CHANNELS.TIMER_STOPPED);
-  clearTimeout(intervalObj);
+  if (intervalObj) {
+    clearInterval(intervalObj);
+    intervalObj = null;
+  }
   createBlockConcentrationWindow();
 
   if (Notification.isSupported()) {
@@ -120,6 +127,10 @@ function getMilliSecFor(min: number, sec: number): number {
 function startTimer(min: number, sec: number) {
   startedTime = formatTime(new Date());
   let ms = getMilliSecFor(min, sec);
+  if (intervalObj) {
+    clearInterval(intervalObj);
+    intervalObj = null;
+  }
   updateTray(tray, trayWindow.webContents, ms);
   intervalObj = setInterval(() => {
     ms -= ONE_MILLISEC;
@@ -215,6 +226,42 @@ const showTrayWindow = () => {
   trayWindow.show();
   trayWindow.focus();
 };
+
+function requestQuitApp(forceAfterMs = 2000): void {
+  if (isQuitting) return;
+  isQuitting = true;
+
+  if (intervalObj) {
+    clearInterval(intervalObj);
+    intervalObj = null;
+  }
+
+  if (!isMAS()) {
+    globalShortcut.unregisterAll();
+  }
+
+  for (const win of BrowserWindow.getAllWindows()) {
+    try {
+      win.destroy();
+    } catch (err) {
+      console.error('Failed to destroy window during quit:', err);
+    }
+  }
+
+  try {
+    if (tray && !tray.isDestroyed()) {
+      tray.destroy();
+    }
+  } catch (err) {
+    console.error('Failed to destroy tray during quit:', err);
+  }
+
+  setTimeout(() => {
+    app.exit(0);
+  }, forceAfterMs);
+
+  app.quit();
+}
 
 function appendRetrospect(retrospect: string): void {
   const retroDirPath = getRetrospectDir();
@@ -372,7 +419,7 @@ function setupContextMenu() {
     { label: 'Statistics', click: () => createStatsWindow() },
     { label: 'Settings', click: () => createSettingsWindow() },
     { type: 'separator' },
-    { label: 'Quit Powerdoro', click: () => { if (!isMAS()) globalShortcut.unregisterAll(); app.quit(); } },
+    { label: 'Quit Powerdoro', click: () => requestQuitApp() },
   ]);
   tray.on('right-click', () => {
     tray.popUpContextMenu(contextMenu);
@@ -409,8 +456,7 @@ ipcMain.on(IPC_CHANNELS.TIMER_STOP, (event) => {
 
 ipcMain.on(IPC_CHANNELS.APP_EXIT, (event) => {
   if (!isTrustedIpcSender(event)) return;
-  if (!isMAS()) globalShortcut.unregisterAll();
-  app.exit();
+  requestQuitApp();
 });
 
 ipcMain.on(IPC_CHANNELS.SETTINGS_OPEN, (event) => {
@@ -550,6 +596,17 @@ app.on('ready', () => {
 
 app.on('window-all-closed', function () {
   platforms[process.platform].quit(app);
+});
+
+app.on('before-quit', () => {
+  isQuitting = true;
+  if (intervalObj) {
+    clearInterval(intervalObj);
+    intervalObj = null;
+  }
+  if (!isMAS()) {
+    globalShortcut.unregisterAll();
+  }
 });
 
 app.on('activate', function () {
