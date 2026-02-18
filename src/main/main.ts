@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Tray, ipcMain, globalShortcut, screen, Menu, dialog, Notification } from 'electron';
+import { app, BrowserWindow, Tray, ipcMain, globalShortcut, screen, Menu, dialog, Notification, nativeImage } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
 import { updateTray } from './updateTray';
@@ -131,8 +131,19 @@ function startTimer(min: number, sec: number) {
 }
 
 const createTray = () => {
-  const iconPath = path.join(__dirname, '../../res/img/appicon.png');
-  tray = new Tray(iconPath);
+  const defaultIconPath = path.join(__dirname, '../../res/img/appicon.png');
+  if (process.platform === 'darwin') {
+    const templateIconPath = path.join(__dirname, '../../res/img/trayTemplate.png');
+    const templateIcon = nativeImage.createFromPath(templateIconPath);
+    if (templateIcon.isEmpty()) {
+      tray = new Tray(defaultIconPath);
+    } else {
+      templateIcon.setTemplateImage(true);
+      tray = new Tray(templateIcon);
+    }
+  } else {
+    tray = new Tray(defaultIconPath);
+  }
   tray.on('click', function () {
     toggleWindow();
   });

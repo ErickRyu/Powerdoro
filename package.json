@@ -50,7 +50,7 @@
         "LSUIElement": true
       }
     },
-    "mas-dev": {
+    "masDev": {
       "category": "public.app-category.productivity",
       "type": "development",
       "target": [
