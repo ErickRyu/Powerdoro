@@ -1,5 +1,12 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { IPC_CHANNELS } from '../ipc/channels';
+
+const IPC_CHANNELS = {
+  SETTINGS_GET: 'settings:get',
+  SETTINGS_SAVE: 'settings:save',
+  SETTINGS_SELECT_DIR: 'settings:select-dir',
+  SETTINGS_CHANGED: 'settings:changed',
+  IS_MAS: 'app:is-mas',
+} as const;
 
 contextBridge.exposeInMainWorld('powerdoro', {
   getSettings: () => ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_GET),

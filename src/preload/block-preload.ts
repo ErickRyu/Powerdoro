@@ -1,5 +1,9 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { IPC_CHANNELS } from '../ipc/channels';
+
+const IPC_CHANNELS = {
+  RETROSPECT_SUBMIT: 'retrospect:submit',
+  BLOCK_TIME_UPDATE: 'block:time-update',
+} as const;
 
 contextBridge.exposeInMainWorld('powerdoro', {
   sendRetrospect: (text: string) => {

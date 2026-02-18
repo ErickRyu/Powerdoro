@@ -1,6 +1,7 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
+  const bridge = window.powerdoro;
   const hotkeyDisplay = document.getElementById('hotkey-display');
   const hotkeyReset = document.getElementById('hotkey-reset');
   const autoLaunchCheckbox = document.getElementById('auto-launch');
@@ -13,6 +14,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnSave = document.getElementById('btn-save');
   const btnCancel = document.getElementById('btn-cancel');
   const feedback = document.getElementById('feedback');
+
+  if (!bridge || !hotkeyDisplay || !hotkeyReset || !autoLaunchCheckbox || !autoLaunchLabel || !preset1 || !preset2 || !preset3 || !dirDisplay || !dirBrowse || !btnSave || !btnCancel || !feedback) {
+    console.error('Powerdoro settings renderer failed to initialize required elements or bridge');
+    return;
+  }
 
   let currentHotkey = 'CommandOrControl+Shift+P';
   let isRecording = false;
@@ -34,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function loadSettings() {
-    window.powerdoro.getSettings().then((settings) => {
+    bridge.getSettings().then((settings) => {
       currentHotkey = settings.hotkey;
       hotkeyDisplay.textContent = formatAcceleratorForDisplay(settings.hotkey);
 
@@ -56,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadSettings();
 
   // MAS mode: disable unavailable features
-  window.powerdoro.isMAS().then((mas) => {
+  bridge.isMAS().then((mas) => {
     if (mas) {
       document.getElementById('hotkey-recorder').style.display = 'none';
       document.getElementById('hotkey-desc').textContent = 'Global hotkeys are not available in App Store version';
@@ -147,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Directory Picker ---
   dirBrowse.addEventListener('click', () => {
-    window.powerdoro.selectDirectory().then((result) => {
+    bridge.selectDirectory().then((result) => {
       if (result) {
         const dirPath = typeof result === 'string' ? result : result.path;
         dirDisplay.textContent = dirPath;
@@ -191,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
       settings.retrospectDirBookmark = dirDisplay.dataset.bookmark;
     }
 
-    window.powerdoro.saveSettings(settings).then((result) => {
+    bridge.saveSettings(settings).then((result) => {
       if (result && result.error) {
         showFeedback(result.error, 'error');
       } else {

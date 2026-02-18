@@ -10,6 +10,8 @@
       "dist/**/*",
       "view/**/*",
       "res/**/*",
+      "tray-window-renderer.js",
+      "block-window-renderer.js",
       "settings-window-renderer.js",
       "stats-window-renderer.js",
       "node_modules/chart.js/dist/chart.umd.js"

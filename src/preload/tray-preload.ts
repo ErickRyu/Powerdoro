@@ -1,5 +1,15 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { IPC_CHANNELS } from '../ipc/channels';
+
+const IPC_CHANNELS = {
+  TIMER_START: 'timer:start',
+  TIMER_STOP: 'timer:stop',
+  APP_EXIT: 'app:exit',
+  SETTINGS_OPEN: 'settings:open',
+  STATS_OPEN: 'stats:open',
+  TIMER_UPDATE: 'timer:update',
+  TIMER_STOPPED: 'timer:stopped',
+  SETTINGS_CHANGED: 'settings:changed',
+} as const;
 
 contextBridge.exposeInMainWorld('powerdoro', {
   sendTime: (minutes: number) => {

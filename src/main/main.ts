@@ -36,8 +36,22 @@ let currentHotkey: string;
 let isQuitting = false;
 
 function isTrustedIpcSender(event: { senderFrame?: { url: string } | null; sender: Electron.WebContents }): boolean {
-  const url = event.senderFrame?.url || event.sender.getURL();
-  return typeof url === 'string' && url.startsWith('file://');
+  const knownWindowSenderIds = new Set<number>();
+  for (const win of BrowserWindow.getAllWindows()) {
+    knownWindowSenderIds.add(win.webContents.id);
+  }
+  if (knownWindowSenderIds.has(event.sender.id)) {
+    return true;
+  }
+
+  const frameUrl = event.senderFrame?.url;
+  const senderUrl = event.sender.getURL();
+  const url = (frameUrl && frameUrl !== 'about:blank') ? frameUrl : senderUrl;
+  const trusted = typeof url === 'string' && (url.startsWith('file://') || url === 'about:blank' || url.length === 0);
+  if (!trusted) {
+    console.warn('Rejected IPC sender', { frameUrl, senderUrl });
+  }
+  return trusted;
 }
 
 function getExternalDisplayThreshold() {
@@ -196,9 +210,12 @@ const createTrayWindow = () => {
     trayWindow.setVisibleOnAllWorkspaces(true);
   }
   trayWindow.on('blur', () => {
-    if (!trayWindow.webContents.isDevToolsOpened()) {
-      trayWindow.hide();
-    }
+    setTimeout(() => {
+      if (!trayWindow || trayWindow.isDestroyed()) return;
+      if (!trayWindow.webContents.isDevToolsOpened() && !trayWindow.webContents.isFocused()) {
+        trayWindow.hide();
+      }
+    }, 120);
   });
   trayWindow.webContents.on('before-input-event', (_event, input) => {
     if (input.key === 'Escape' && input.type === 'keyDown') {

@@ -1,6 +1,7 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
+  const bridge = window.powerdoro
   const timeInput = document.getElementById('time')
   const submitBtn = document.getElementById('submit_btn')
   const errorMsg = document.getElementById('error-msg')
@@ -10,6 +11,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const settingsBtn = document.getElementById('settings-btn')
   const statsBtn = document.getElementById('stats-btn')
   const presetBtns = document.querySelectorAll('.preset-btn')
+  
+  if (!bridge || !timeInput || !submitBtn || !errorMsg || !form) {
+    console.error('Powerdoro tray renderer failed to initialize required elements or bridge')
+    return
+  }
 
   function validateAndSend() {
     const value = parseInt(timeInput.value, 10)
@@ -20,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     timeInput.classList.remove('invalid')
     errorMsg.textContent = ''
-    window.powerdoro.sendTime(value)
+    bridge.sendTime(value)
   }
 
   form.addEventListener('submit', (event) => {
@@ -35,21 +41,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   })
 
-  stopBtn.addEventListener('click', () => {
-    window.powerdoro.stopTimer()
-  })
+  if (stopBtn) {
+    stopBtn.addEventListener('mousedown', (event) => {
+      event.preventDefault()
+      bridge.stopTimer()
+    })
+  }
 
-  exitBtn.addEventListener('click', () => {
-    window.powerdoro.exitApp()
-  })
+  if (exitBtn) {
+    exitBtn.addEventListener('mousedown', (event) => {
+      event.preventDefault()
+      bridge.exitApp()
+    })
+  }
 
-  settingsBtn.addEventListener('click', () => {
-    window.powerdoro.openSettings()
-  })
+  if (settingsBtn) {
+    settingsBtn.addEventListener('mousedown', (event) => {
+      event.preventDefault()
+      bridge.openSettings()
+    })
+  }
 
-  statsBtn.addEventListener('click', () => {
-    window.powerdoro.openStats()
-  })
+  if (statsBtn) {
+    statsBtn.addEventListener('mousedown', (event) => {
+      event.preventDefault()
+      bridge.openStats()
+    })
+  }
 
   window.addEventListener('focus', () => {
     if (!timeInput.disabled) {
@@ -64,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
       timeInput.value = minutes
       timeInput.classList.remove('invalid')
       errorMsg.textContent = ''
-      window.powerdoro.sendTime(minutes)
+      bridge.sendTime(minutes)
     })
   })
 
@@ -75,12 +93,12 @@ document.addEventListener('DOMContentLoaded', () => {
     presetBtns.forEach((btn) => { btn.disabled = running })
   }
 
-  window.powerdoro.onTimeUpdate((time) => {
+  bridge.onTimeUpdate((time) => {
     timeInput.value = time
     setTimerRunning(true)
   })
 
-  window.powerdoro.onSettingsChanged((settings) => {
+  bridge.onSettingsChanged((settings) => {
     if (settings && settings.timerPresets) {
       const btns = document.querySelectorAll('.preset-btn')
       const presets = settings.timerPresets
@@ -93,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   })
 
-  window.powerdoro.onTimerStopped(() => {
+  bridge.onTimerStopped(() => {
     timeInput.value = ''
     setTimerRunning(false)
     timeInput.focus()
