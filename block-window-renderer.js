@@ -5,8 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const retrospectInput = document.getElementById('retrospect')
   const errorMsg = document.getElementById('error-msg')
 
-  form.addEventListener('submit', (event) => {
-    event.preventDefault()
+  function submitRetrospect() {
     const text = retrospectInput.value.trim()
     if (!text) {
       retrospectInput.classList.add('invalid')
@@ -16,5 +15,18 @@ document.addEventListener('DOMContentLoaded', () => {
     retrospectInput.classList.remove('invalid')
     errorMsg.textContent = ''
     window.powerdoro.sendRetrospect(text)
+  }
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault()
+    submitRetrospect()
+  })
+
+  retrospectInput.addEventListener('keydown', (event) => {
+    const isEnter = event.key === 'Enter'
+    if (!isEnter || event.shiftKey) return
+
+    event.preventDefault()
+    submitRetrospect()
   })
 })
