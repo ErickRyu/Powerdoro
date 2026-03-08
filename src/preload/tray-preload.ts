@@ -1,15 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
-
-const IPC_CHANNELS = {
-  TIMER_START: 'timer:start',
-  TIMER_STOP: 'timer:stop',
-  APP_EXIT: 'app:exit',
-  SETTINGS_OPEN: 'settings:open',
-  STATS_OPEN: 'stats:open',
-  TIMER_UPDATE: 'timer:update',
-  TIMER_STOPPED: 'timer:stopped',
-  SETTINGS_CHANGED: 'settings:changed',
-} as const;
+import { IPC_CHANNELS } from '../ipc/channels';
 
 contextBridge.exposeInMainWorld('powerdoro', {
   sendTime: (minutes: number) => {
@@ -27,6 +17,15 @@ contextBridge.exposeInMainWorld('powerdoro', {
   openStats: () => {
     ipcRenderer.send(IPC_CHANNELS.STATS_OPEN);
   },
+  sendHealthPing: () => {
+    ipcRenderer.send(IPC_CHANNELS.HEALTH_PING);
+  },
+  recoverNow: () => {
+    ipcRenderer.send(IPC_CHANNELS.RECOVER_NOW);
+  },
+  restartSafe: () => {
+    ipcRenderer.send(IPC_CHANNELS.RESTART_SAFE);
+  },
   onTimeUpdate: (callback: (time: string) => void) => {
     ipcRenderer.on(IPC_CHANNELS.TIMER_UPDATE, (_event, time: string) => {
       callback(time);
@@ -40,6 +39,11 @@ contextBridge.exposeInMainWorld('powerdoro', {
   onSettingsChanged: (callback: (settings: Record<string, unknown>) => void) => {
     ipcRenderer.on(IPC_CHANNELS.SETTINGS_CHANGED, (_event, settings) => {
       callback(settings);
+    });
+  },
+  onHealthStateChanged: (callback: (state: string, reason: string) => void) => {
+    ipcRenderer.on(IPC_CHANNELS.HEALTH_STATE, (_event, payload: { state: string; reason: string }) => {
+      callback(payload.state, payload.reason);
     });
   },
 });

@@ -8,11 +8,14 @@ export const IPC_CHANNELS = {
   TIMER_STOP: 'timer:stop',             // was 'stop-message'
   RETROSPECT_SUBMIT: 'retrospect:submit', // was 'retrospect-message'
   APP_EXIT: 'app:exit',                 // was 'exit-app'
+  HEALTH_PING: 'app:health-ping',
+  RECOVER_NOW: 'app:recover-now',
+  RESTART_SAFE: 'app:restart-safe',
 
   // Main -> Renderer
   TIMER_UPDATE: 'timer:update',         // was 'time-update'
   TIMER_STOPPED: 'timer:stopped',       // was 'stoped-timer'
-  BLOCK_TIME_UPDATE: 'block:time-update', // was 'block-time-update'
+  HEALTH_STATE: 'app:health-state',
 
   // Settings
   SETTINGS_GET: 'settings:get',               // invoke/handle

@@ -23,6 +23,18 @@ describe('IPC_CHANNELS', () => {
     it('should define APP_EXIT', () => {
       expect(IPC_CHANNELS.APP_EXIT).toBe('app:exit');
     });
+
+    it('should define HEALTH_PING', () => {
+      expect(IPC_CHANNELS.HEALTH_PING).toBe('app:health-ping');
+    });
+
+    it('should define RECOVER_NOW', () => {
+      expect(IPC_CHANNELS.RECOVER_NOW).toBe('app:recover-now');
+    });
+
+    it('should define RESTART_SAFE', () => {
+      expect(IPC_CHANNELS.RESTART_SAFE).toBe('app:restart-safe');
+    });
   });
 
   describe('Main -> Renderer channels', () => {
@@ -34,8 +46,8 @@ describe('IPC_CHANNELS', () => {
       expect(IPC_CHANNELS.TIMER_STOPPED).toBe('timer:stopped');
     });
 
-    it('should define BLOCK_TIME_UPDATE', () => {
-      expect(IPC_CHANNELS.BLOCK_TIME_UPDATE).toBe('block:time-update');
+    it('should define HEALTH_STATE', () => {
+      expect(IPC_CHANNELS.HEALTH_STATE).toBe('app:health-state');
     });
   });
 
