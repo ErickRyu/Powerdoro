@@ -8,6 +8,9 @@
     "productName": "Powerdoro",
     "files": [
       "dist/**/*",
+      "!dist/mac*",
+      "!dist/Powerdoro*",
+      "!dist/builder-*",
       "view/**/*",
       "res/**/*",
       "tray-window-renderer.js",
